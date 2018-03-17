@@ -1,15 +1,12 @@
 # Projeto de Sistemas Distribuídos 2017/18 #
 
-Grupo CXX
-*(preencher com identificador de grupo e depois apagar esta linha)*
+Grupo T07
 
-... ... ...
-
-... ... ...
-
-... ... ...
-*(preencher com nome, número e email de membro do grupo e depois apagar esta linha)*
-
+|Nome 		   | Número | E-mail                         |
+|:------------:| :---:  | :-----------------------------:|
+|Filipa Marques|  57842 |filipalpgouveia@gmail.com 		 |
+|David Coimbra |  84708 |david.coimbra@tecnico.ulisboa.pt|
+|Lúcia Lisboa  |  84738 |lucia.lisboa@tecnico.ulisboa.pt |
 
 -------------------------------------------------------------------------------
 **FIM**
