@@ -17,8 +17,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<wsdl.directory>${basedir}/../station-ws/src/main/resources</wsdl.directory>
-		<wsdl.filename>station.wsdl</wsdl.filename>
+		<wsdl.directory>${basedir}/../station-ws/src/main/resources/</wsdl.directory>
+		<wsdl.filename>station.1_0.wsdl</wsdl.filename>
 
 		<mainclass>org.binas.station.ws.cli.StationClientApp</mainclass>
 
@@ -26,8 +26,6 @@
 		<ws.i>1</ws.i>
 		<uddi.url>http://localhost:9090</uddi.url>
 
-		<!-- Please replace 'T07' below with your C (campus) with A (Alameda) / 
-			T (Tagus); and your group number with two digits. Then delete this comment. -->
 		<group.id>T07</group.id>
 
 		<ws.name>${group.id}_Station${ws.i}</ws.name>
@@ -74,12 +72,12 @@
 					</nonFilteredFileExtensions>
 				</configuration>
 			</plugin>
-			<!--plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>jaxws-maven-plugin</artifactId> 
+			<plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>jaxws-maven-plugin</artifactId> 
 				<version>2.4.1</version> <executions> <execution> <goals> <goal>wsimport</goal> 
 				</goals> </execution> </executions> <configuration> <wsdlDirectory>${wsdl.directory}</wsdlDirectory> 
 				<wsdlFiles> <wsdlFile>${wsdl.filename}</wsdlFile> </wsdlFiles> </configuration> 
 				<dependencies> <dependency> <groupId>com.sun.xml.ws</groupId> <artifactId>jaxws-tools</artifactId> 
-				<version>2.2.10</version> </dependency> </dependencies> </plugin -->
+				<version>2.2.10</version> </dependency> </dependencies> </plugin>
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.19.1</version>

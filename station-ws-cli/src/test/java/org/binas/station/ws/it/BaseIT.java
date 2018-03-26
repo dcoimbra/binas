@@ -40,6 +40,7 @@ public class BaseIT {
 		if ("true".equalsIgnoreCase(uddiEnabled)) {
 			client = new StationClient(uddiURL, wsName);
 		} else {
+			System.out.printf("Creating client for server at %s%n", wsURL);
 			client = new StationClient(wsURL);
 		}
 		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
@@ -47,6 +48,7 @@ public class BaseIT {
 
 	@AfterClass
 	public static void cleanup() {
+		client.testClear();
 	}
 
 }
