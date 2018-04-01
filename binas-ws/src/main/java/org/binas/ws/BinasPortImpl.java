@@ -1,6 +1,13 @@
 package org.binas.ws;
 
 import javax.jws.WebService;
+
+import org.binas.domain.BinasManager;
+import org.binas.domain.exception.AlreadyHasBinaException;
+import org.binas.domain.exception.NoBinaAvailException;
+import org.binas.domain.exception.NoCreditException;
+import org.binas.domain.exception.UserNotExistsException;
+
 import java.util.List;
 
 @WebService(
@@ -11,57 +18,116 @@ portName = "BinasPort",
 targetNamespace="http://ws.binas.org/",
 serviceName = "BinasService"
 )
-public class BinasPortImpl implements BinasPortType{
+public class BinasPortImpl implements BinasPortType {
 
     @Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
+    	//TODO
         return null;
     }
 
     @Override
     public StationView getInfoStation(String stationId) throws InvalidStation_Exception{
+    	//TODO
         return null;
     }
 
     @Override
     public int getCredit(String email) throws UserNotExists_Exception{
-        return 0;
+    	try {
+    		return BinasManager.getInstance().getCredit(email);
+    	} catch (UserNotExistsException e) {
+    		throwUserNotExists(e.getMessage());
+    		return 0;
+    	}
     }
 
-    @Override
+
+	@Override
     public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
+    	//TODO
         return null;
     }
 
     @Override
     public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
-
+//    	try{
+//    		BinasManager.getInstance().rentBina(stationId, email);
+//    	} catch (UserNotExistsException e) {
+//			throwUserNotExists(e.getMessage());
+//		} catch (NoCreditException e) {
+//			throwNoCredit(e.getMessage());
+//		} catch (AlreadyHasBinaException e) {
+//			throwAlreadyHasBina(e.getMessage());
+//		}
     }
 
     @Override
     public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception{
-
+    	//TODO
     }
 
     @Override
     public String testPing(String inputMessage){
+    	//TODO
         return "";
     }
 
     @Override
     public void testClear(){
-
+    	//TODO
     }
 
     @Override
     public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInit_Exception{
-
+    	//TODO
     }
 
     @Override
     public void testInit(int userInitialPoints) throws BadInit_Exception{
-
+    	//TODO
     }
 
-
+    // Exceptions Helpers ---------------------------------------------------------------------------
+    
+	 /** Helper to throw a new BadInit exception. */
+	 private void throwBadInit(final String message) throws BadInit_Exception {
+		 BadInit faultInfo = new BadInit();
+		 faultInfo.message = message;
+		 throw new BadInit_Exception(message, faultInfo);
+	 }
+	 
+	 /** Helper to throw a new NoBinaAvail exception. */
+	 private void throwNoBinaAvail(final String message) throws NoBinaAvail_Exception {
+		 NoBinaAvail faultInfo = new NoBinaAvail();
+		 faultInfo.message = message;
+		 throw new NoBinaAvail_Exception(message, faultInfo);
+	 }
+	 
+	 /** Helper to throw a new NoBinaAvail exception. */
+	 private void throwNoCredit(final String message) throws NoCredit_Exception {
+		 NoCredit faultInfo = new NoCredit();
+		 faultInfo.message = message;
+		 throw new NoCredit_Exception(message, faultInfo);
+	 }
+	 
+	 /** Helper to throw a new NoBinaAvail exception. */
+	 private void throwAlreadyHasBina(final String message) throws AlreadyHasBina_Exception {
+		 AlreadyHasBina faultInfo = new AlreadyHasBina();
+		 faultInfo.message = message;
+		 throw new AlreadyHasBina_Exception(message, faultInfo);
+	 }
+	 
+	 /** Helper to throw a new NoBinaAvail exception. */
+	 private void throwUserNotExists(final String message) throws UserNotExists_Exception {
+		 UserNotExists faultInfo = new UserNotExists();
+		 faultInfo.message = message;
+		 throw new UserNotExists_Exception(message, faultInfo);
+	 }
+	 
+//    InvalidStation_Exception
+//    EmailExists_Exception
+//    InvalidEmail_Exception
+//    FullStation_Exception
+//    NoBinaRented_Exception
 }
