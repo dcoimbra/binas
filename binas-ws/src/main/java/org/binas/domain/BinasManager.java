@@ -1,7 +1,16 @@
 package org.binas.domain;
 
-public class BinasManager {
+import java.util.HashMap;
+import java.util.Map;
 
+import org.binas.domain.exception.AlreadyHasBinaException;
+import org.binas.domain.exception.NoCreditException;
+import org.binas.domain.exception.UserNotExistsException;
+
+public class BinasManager {
+	
+	private Map<String, BinasUser> users = new HashMap<>();
+	
 	// Singleton -------------------------------------------------------------
 
 	private BinasManager() {
@@ -19,7 +28,26 @@ public class BinasManager {
 		return SingletonHolder.INSTANCE;
 	}
 
+	public int getCredit(String email) throws UserNotExistsException {
+		return getUser(email).getCredit();
+	}
+
+	public void rentBina(String stationId, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException {
+//		BinasUser user = getUser(email);
+//		int credit = user.getCredit();
+//		if ( credit < 1)
+//			throw new NoCreditException("No credit available");
+//		if(user.isWithBina())
+//			throw new AlreadyHasBinaException("User already has Bina");
+//		//TODO getStationClientById(stationId).rentBina();
+//		user.setCredit(credit - 1);
+	}
 	
-	// TODO
+	private BinasUser getUser(String email) throws UserNotExistsException {
+		BinasUser user = users.get(email);
+		if (user == null)
+			throw new UserNotExistsException("User doesn't exist");
+		return user;
+	}
 
 }
