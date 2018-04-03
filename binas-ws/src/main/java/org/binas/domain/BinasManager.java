@@ -1,16 +1,19 @@
 package org.binas.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.binas.domain.exception.AlreadyHasBinaException;
 import org.binas.domain.exception.NoCreditException;
 import org.binas.domain.exception.UserNotExistsException;
+import org.binas.ws.StationView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BinasManager {
 	
-	private Map<String, BinasUser> users = new HashMap<>();
-	
+	private static Map<String, BinasUser> users = new HashMap<>();
+	private static HashMap<String, StationView> stations = new HashMap();
+
+
 	// Singleton -------------------------------------------------------------
 
 	private BinasManager() {
@@ -50,4 +53,7 @@ public class BinasManager {
 		return user;
 	}
 
+	public HashMap<String, StationView> getStations() {
+		return stations;
+	}
 }

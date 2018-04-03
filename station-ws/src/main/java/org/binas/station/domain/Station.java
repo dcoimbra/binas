@@ -1,10 +1,10 @@
 package org.binas.station.domain;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Domain Root. */
 public class Station {

@@ -1,13 +1,11 @@
 package org.binas.ws;
 
-import javax.jws.WebService;
-
 import org.binas.domain.BinasManager;
-import org.binas.domain.exception.AlreadyHasBinaException;
-import org.binas.domain.exception.NoBinaAvailException;
-import org.binas.domain.exception.NoCreditException;
+import org.binas.domain.BinasUser;
 import org.binas.domain.exception.UserNotExistsException;
 
+import javax.jws.WebService;
+import java.util.HashMap;
 import java.util.List;
 
 @WebService(
@@ -26,13 +24,28 @@ public class BinasPortImpl implements BinasPortType {
         return null;
     }
 
-    @Override
-    public StationView getInfoStation(String stationId) throws InvalidStation_Exception{
-    	//TODO
-        return null;
-    }
+	@Override
+	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
+		try {
+			HashMap<String, StationView> stations = BinasManager.getInstance().getStations();
 
-    @Override
+			StationView view = stations.get(stationId);
+
+			if(view == null){
+				InvalidStation faultInfo = new InvalidStation();
+				throw new InvalidStation_Exception("Station is valid", faultInfo);
+			}
+
+			return view;
+
+		}catch(InvalidStation_Exception e){
+			throwInvalidStation(e.getMessage());
+			return null;
+		}
+	}
+
+
+	@Override
     public int getCredit(String email) throws UserNotExists_Exception{
     	try {
     		return BinasManager.getInstance().getCredit(email);
@@ -45,8 +58,28 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
     public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
-    	//TODO
-        return null;
+		try {
+
+			if(!BinasUser.getEmails().add(email)){
+				EmailExists faultInfo = new EmailExists();
+				throw new EmailExists_Exception("Email already exists", faultInfo);
+			}
+			else if(email.equals("")){
+				InvalidEmail faultInfo = new InvalidEmail();
+				throw new InvalidEmail_Exception("Email is invalid", faultInfo);
+			}
+
+			BinasUser user = new BinasUser(email, "hm");
+
+			return buildUserView(user);
+
+		}catch(EmailExists_Exception e){
+			throwEmailExists(e.getMessage());
+			return null;
+		}catch(InvalidEmail_Exception e){
+			throwInvalidEmail(e.getMessage());
+			return null;
+		}
     }
 
     @Override
@@ -124,10 +157,39 @@ public class BinasPortImpl implements BinasPortType {
 		 faultInfo.message = message;
 		 throw new UserNotExists_Exception(message, faultInfo);
 	 }
-	 
-//    InvalidStation_Exception
-//    EmailExists_Exception
+
+	 /** Helper to throw a new UserNotExists exception. */
+	 private void throwInvalidStation(final String message) throws InvalidStation_Exception {
+		InvalidStation faultInfo = new InvalidStation();
+		faultInfo.message = message;
+		throw new InvalidStation_Exception(message, faultInfo);
+	 }
+
+	/** Helper to throw a new InvalidEmail exception. */
+	private void throwInvalidEmail(final String message) throws InvalidEmail_Exception {
+		InvalidEmail faultInfo = new InvalidEmail();
+		faultInfo.message = message;
+		throw new InvalidEmail_Exception(message, faultInfo);
+	 }
+
+	/** Helper to throw a new UserEmailExists exception. */
+	private void throwEmailExists(final String message) throws EmailExists_Exception {
+		EmailExists faultInfo = new EmailExists();
+		faultInfo.message = message;
+		throw new EmailExists_Exception(message, faultInfo);
+	}
+
 //    InvalidEmail_Exception
 //    FullStation_Exception
 //    NoBinaRented_Exception
+
+	//View Helpers
+	private UserView buildUserView(BinasUser user) {
+		UserView view = new UserView();
+		view.setEmail(user.getEmail());
+		view.setHasBina(user.isWithBina());
+		view.setCredit(user.getCredit());
+
+		return view;
+	}
 }

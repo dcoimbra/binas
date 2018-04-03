@@ -1,16 +1,22 @@
 package org.binas.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class BinasUser {
 	
 	private final String email;
 	private String password;
 	private int credit;
 	private boolean withBina;
+	private static Set<String> emails = new HashSet<>();
 
 	
 	public BinasUser(String email, String password) {
 		this.email = email;
 		this.password = password;
+
+		this.getEmails().add(email);
 	}
 	
 	public void changeCredit(int credit) {
@@ -46,7 +52,7 @@ public class BinasUser {
 		this.withBina = withBina;
 	}
 	
-	
+	public static Set<String> getEmails(){ return emails;}
 
 	
 
