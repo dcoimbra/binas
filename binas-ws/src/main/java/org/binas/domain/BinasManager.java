@@ -3,10 +3,9 @@ package org.binas.domain;
 import org.binas.domain.exception.AlreadyHasBinaException;
 import org.binas.domain.exception.NoCreditException;
 import org.binas.domain.exception.UserNotExistsException;
-import org.binas.ws.StationView;
+import org.binas.ws.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BinasManager {
 	
@@ -51,6 +50,68 @@ public class BinasManager {
 		if (user == null)
 			throw new UserNotExistsException("User doesn't exist");
 		return user;
+	}
+
+	public BinasUser activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
+
+		if(!BinasUser.getEmails().add(email)){
+			EmailExists faultInfo = new EmailExists();
+			throw new EmailExists_Exception("Email already exists", faultInfo);
+		}
+		else if(email.equals("")){
+			InvalidEmail faultInfo = new InvalidEmail();
+			throw new InvalidEmail_Exception("Email is invalid", faultInfo);
+		}
+
+		BinasUser user = new BinasUser(email, "pass");
+
+		return user;
+	}
+
+	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
+
+		StationView view = stations.get(stationId);
+
+		if(view == null){
+			InvalidStation faultInfo = new InvalidStation();
+			throw new InvalidStation_Exception("Station is valid", faultInfo);
+		}
+
+		return view;
+	}
+
+	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
+
+		Map<Double, StationView> distances = new TreeMap<>();
+		List<StationView> stationViews = new ArrayList<>();
+		Integer x1 = coordinates.getX();
+		Integer y1 = coordinates.getY();
+
+		for (StationView station : stations.values()) {
+
+			CoordinatesView c = station.getCoordinate();
+			Integer x2 = c.getX();
+			Integer y2 = c.getY();
+
+			Double x = Math.pow(Math.abs(x1 - x2), 2);
+			Double y = Math.pow(Math.abs(y1 - y2), 2);
+			Double hipotenusa = Math.sqrt(x + y);
+
+			distances.put(hipotenusa, station);
+
+		}
+
+		for(Map.Entry<Double, StationView> entry : distances.entrySet()) {
+
+			stationViews.add(entry.getValue());
+
+			if(stationViews.size() == numberOfStations){
+				break;
+			}
+
+		}
+
+		return stationViews;
 	}
 
 	public HashMap<String, StationView> getStations() {

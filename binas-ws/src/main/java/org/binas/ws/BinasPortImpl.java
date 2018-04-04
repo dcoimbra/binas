@@ -20,52 +20,13 @@ public class BinasPortImpl implements BinasPortType {
     @Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 
-    	Map<Double, StationView> distances = new TreeMap<>();
-    	HashMap<String, StationView> map = BinasManager.getInstance().getStations();
-    	List<StationView> stationViews = new ArrayList<>();
-		Integer x1 = coordinates.getX();
-		Integer y1 = coordinates.getY();
-
-		for (StationView station : map.values()) {
-
-			CoordinatesView c = station.getCoordinate();
-			Integer x2 = c.getX();
-			Integer y2 = c.getY();
-
-			Double x = Math.pow(Math.abs(x1 - x2), 2);
-			Double y = Math.pow(Math.abs(y1 - y2), 2);
-			Double hipotenusa = Math.sqrt(x + y);
-
-			distances.put(hipotenusa, station);
-
-		}
-
-		for(Map.Entry<Double, StationView> entry : distances.entrySet()) {
-
-			stationViews.add(entry.getValue());
-
-			if(stationViews.size() == numberOfStations){
-				break;
-			}
-
-		}
-
-		return stationViews;
+		return BinasManager.getInstance().listStations(numberOfStations, coordinates);
     }
 
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
 		try {
-			HashMap<String, StationView> stations = BinasManager.getInstance().getStations();
-
-			StationView view = stations.get(stationId);
-
-			if(view == null){
-				InvalidStation faultInfo = new InvalidStation();
-				throw new InvalidStation_Exception("Station is valid", faultInfo);
-			}
-
-			return view;
+			return BinasManager.getInstance().getInfoStation(stationId);
 
 		}catch(InvalidStation_Exception e){
 			throwInvalidStation(e.getMessage());
@@ -80,7 +41,7 @@ public class BinasPortImpl implements BinasPortType {
     		return BinasManager.getInstance().getCredit(email);
     	} catch (UserNotExistsException e) {
     		throwUserNotExists(e.getMessage());
-    		return 0;
+    		return -1;
     	}
     }
 
@@ -89,16 +50,7 @@ public class BinasPortImpl implements BinasPortType {
     public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
 		try {
 
-			if(!BinasUser.getEmails().add(email)){
-				EmailExists faultInfo = new EmailExists();
-				throw new EmailExists_Exception("Email already exists", faultInfo);
-			}
-			else if(email.equals("")){
-				InvalidEmail faultInfo = new InvalidEmail();
-				throw new InvalidEmail_Exception("Email is invalid", faultInfo);
-			}
-
-			BinasUser user = new BinasUser(email, "hm");
+			BinasUser user = BinasManager.getInstance().activateUser(email);
 
 			return buildUserView(user);
 
