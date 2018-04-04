@@ -5,8 +5,7 @@ import org.binas.domain.BinasUser;
 import org.binas.domain.exception.UserNotExistsException;
 
 import javax.jws.WebService;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @WebService(
 endpointInterface = "org.binas.ws.BinasPortType",
@@ -20,8 +19,38 @@ public class BinasPortImpl implements BinasPortType {
 
     @Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
-    	//TODO
-        return null;
+
+    	Map<Double, StationView> distances = new TreeMap<>();
+    	HashMap<String, StationView> map = BinasManager.getInstance().getStations();
+    	List<StationView> stationViews = new ArrayList<>();
+		Integer x1 = coordinates.getX();
+		Integer y1 = coordinates.getY();
+
+		for (StationView station : map.values()) {
+
+			CoordinatesView c = station.getCoordinate();
+			Integer x2 = c.getX();
+			Integer y2 = c.getY();
+
+			Double x = Math.pow(Math.abs(x1 - x2), 2);
+			Double y = Math.pow(Math.abs(y1 - y2), 2);
+			Double hipotenusa = Math.sqrt(x + y);
+
+			distances.put(hipotenusa, station);
+
+		}
+
+		for(Map.Entry<Double, StationView> entry : distances.entrySet()) {
+
+			stationViews.add(entry.getValue());
+
+			if(stationViews.size() == numberOfStations){
+				break;
+			}
+
+		}
+
+		return stationViews;
     }
 
 	@Override
@@ -179,7 +208,6 @@ public class BinasPortImpl implements BinasPortType {
 		throw new EmailExists_Exception(message, faultInfo);
 	}
 
-//    InvalidEmail_Exception
 //    FullStation_Exception
 //    NoBinaRented_Exception
 
