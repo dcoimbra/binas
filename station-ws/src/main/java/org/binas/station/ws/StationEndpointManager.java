@@ -1,8 +1,9 @@
 package org.binas.station.ws;
 
-import java.io.IOException;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
 import javax.xml.ws.Endpoint;
+import java.io.IOException;
 
 /** The endpoint manager starts and registers the service. */
 public class StationEndpointManager {
@@ -24,20 +25,20 @@ public class StationEndpointManager {
 	private StationPortImpl portImpl = new StationPortImpl(this);
 
 	// /** Obtain Port implementation */
-	// public StationPortType getPort() {
-	// return portImpl;
-	// }
+	public StationPortType getPort() {
+		return portImpl;
+	}
 
 	/** Web Service end point */
 	private Endpoint endpoint = null;
 
 	// /** UDDI Naming instance for contacting UDDI server */
-	// private UDDINaming uddiNaming = null;
-	//
+	 private UDDINaming uddiNaming = null;
+
 	// /** Get UDDI Naming instance for contacting UDDI server */
-	// UDDINaming getUddiNaming() {
-	// return uddiNaming;
-	// }
+	UDDINaming getUddiNaming() {
+	  return uddiNaming;
+	}
 
 	/** output option */
 	private boolean verbose = true;
@@ -58,10 +59,10 @@ public class StationEndpointManager {
 	}
 
 	/** constructor with provided web service URL */
-	public StationEndpointManager(String wsName, String wsURL) {
+	/*public StationEndpointManager(String wsName, String uddiURL) {
 		this.wsName = wsName;
-		this.wsURL = wsURL;
-	}
+		this.uddiURL = uddiURL;
+	}*/
 
 	/* end point management */
 
@@ -118,12 +119,23 @@ public class StationEndpointManager {
 
 	/* UDDI */
 
-	void publishToUDDI() throws Exception {
-		// TODO
+	private void publishToUDDI() throws Exception {
+		System.out.printf("Publishing '%s' to UDDI at %s%n", wsName, uddiURL);
+		uddiNaming = new UDDINaming(uddiURL);
+		uddiNaming.rebind(wsName, uddiURL);
 	}
 
-	void unpublishFromUDDI() {
-		// TODO
+	private void unpublishFromUDDI() {
+		try {
+			if (uddiNaming != null) {
+				// delete from UDDI
+				uddiNaming.unbind(wsName);
+				System.out.printf("Deleted '%s' from UDDI%n", wsName);
+			}
+		} catch (Exception e) {
+			System.out.printf("Caught exception when deleting: %s%n", e);
+		}
+
 	}
 
 }

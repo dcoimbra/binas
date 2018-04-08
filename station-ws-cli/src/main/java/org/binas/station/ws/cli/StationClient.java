@@ -1,17 +1,13 @@
 package org.binas.station.ws.cli;
 
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
-
-import java.util.Map;
+import org.binas.station.ws.*;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 import javax.xml.ws.BindingProvider;
+import java.util.Map;
 
-import org.binas.station.ws.BadInit_Exception;
-import org.binas.station.ws.NoBinaAvail_Exception;
-import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.StationPortType;
-import org.binas.station.ws.StationService;
-import org.binas.station.ws.StationView;
+import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 /**
  * Client port wrapper.
@@ -68,7 +64,24 @@ public class StationClient implements StationPortType {
 
 	/** UDDI lookup */
 	private void uddiLookup() throws StationClientException {
-		// TODO
+		try {
+			System.out.printf("Contacting UDDI at %s%n", uddiURL);
+			UDDINaming uddiNaming = new UDDINaming(uddiURL);
+
+			System.out.printf("Looking for '%s'%n", wsName);
+			String endpointAddress = uddiNaming.lookup(wsName);
+
+			if (endpointAddress == null) {
+				System.out.println("Not found!");
+				throw new StationClientException();
+			} else {
+				System.out.printf("Found %s%n", endpointAddress);
+			}
+		}catch(UDDINamingException e){
+			System.out.printf("UDDINamingException");
+
+		}
+
 	}
 
 
@@ -76,7 +89,12 @@ public class StationClient implements StationPortType {
 	private void createStub() {
 		 if (verbose)
 			 System.out.println("Creating stub ...");
-		// TODO
+
+		 /*StationEndpointManager service = new StationEndpointManager();
+		 StationPortType port = service.getPort();
+
+		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);*/
+
 		 service = new StationService();
 		 port = service.getStationPort();
 		
