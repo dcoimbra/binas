@@ -14,16 +14,22 @@ public class StationClientApp {
 		String wsName = null;
 		String wsURL = null;
 
+
+		if (args.length == 1) {
+			wsURL = args[2];
+		} else if (args.length >= 2) {
+			uddiURL = args[0];
+			wsName = args[1];
+		}
+
 		// Create client.
 		StationClient client = null;
 
-		if (args.length < 2) {
-			wsURL = args[0];
+		if (wsURL!= null){
 			System.out.printf("Creating client for server at %s%n", wsURL);
 			client = new StationClient(wsURL);
-		} else {
-			uddiURL = args[0];
-			wsName = args[1];
+		}
+		else if(uddiURL!=null){
 			System.out.printf("Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
 			client = new StationClient(uddiURL, wsName);
 		}

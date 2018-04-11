@@ -115,6 +115,7 @@
 					<arguments>
 						<argument>${uddi.url}</argument>
 						<argument>${ws.name}</argument>
+						<argument>${ws.url}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
