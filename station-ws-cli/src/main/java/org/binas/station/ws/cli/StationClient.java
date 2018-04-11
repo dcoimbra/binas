@@ -91,7 +91,7 @@ public class StationClient implements StationPortType {
 		 if (verbose)
 			 System.out.println("Creating stub ...");
 
-		 StationService service = new StationService();
+		 this.service = new StationService();
 		 port = service.getStationPort();
 		
 		 if (wsURL != null) {

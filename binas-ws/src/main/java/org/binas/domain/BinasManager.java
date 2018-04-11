@@ -54,13 +54,14 @@ public class BinasManager {
 
 	public BinasUser activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
 
-		if(!BinasUser.getEmails().add(email)){
-			EmailExists faultInfo = new EmailExists();
-			throw new EmailExists_Exception("Email already exists", faultInfo);
-		}
-		else if(email.equals("")){
+		if( email.equals("[a-z]@[a-z].[a-z]")){
 			InvalidEmail faultInfo = new InvalidEmail();
 			throw new InvalidEmail_Exception("Email is invalid", faultInfo);
+		}
+		else if(!BinasUser.getEmails().add(email)){
+
+			EmailExists faultInfo = new EmailExists();
+			throw new EmailExists_Exception("Email already exists", faultInfo);
 		}
 
 		BinasUser user = new BinasUser(email, "pass");

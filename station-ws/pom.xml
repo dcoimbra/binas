@@ -26,7 +26,7 @@
 		<ws.host>localhost</ws.host>
 		<ws.port>808${ws.i}</ws.port>
 		<ws.url>http://${ws.host}:${ws.port}/station-ws/endpoint</ws.url>
-		<ws.name>t07_Station${ws.i}</ws.name>
+		<ws.name>T07_Station${ws.i}</ws.name>
 
 		<uddi.url> http://t07:BKPafYt@uddi.sd.rnl.tecnico.ulisboa.pt:9090</uddi.url>
 
