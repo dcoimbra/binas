@@ -6,6 +6,8 @@ import org.binas.domain.exception.UserNotExistsException;
 import org.binas.ws.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BinasManager {
 	
@@ -54,7 +56,10 @@ public class BinasManager {
 
 	public BinasUser activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
 
-		if( email.equals("[a-z]@[a-z].[a-z]")){
+		Pattern p = Pattern.compile("[a-z]*@[a-z]*\\.[a-z]*");
+		Matcher match = p.matcher(email);
+
+		if(!match.find()){
 			InvalidEmail faultInfo = new InvalidEmail();
 			throw new InvalidEmail_Exception("Email is invalid", faultInfo);
 		}
@@ -64,9 +69,8 @@ public class BinasManager {
 			throw new EmailExists_Exception("Email already exists", faultInfo);
 		}
 
-		BinasUser user = new BinasUser(email, "pass");
+		return new BinasUser(email, "pass");
 
-		return user;
 	}
 
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {

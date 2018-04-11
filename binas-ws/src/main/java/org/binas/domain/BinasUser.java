@@ -12,11 +12,9 @@ public class BinasUser {
 	private static Set<String> emails = new HashSet<>();
 
 	
-	public BinasUser(String email, String password) {
+	protected BinasUser(String email, String password) {
 		this.email = email;
 		this.password = password;
-
-		this.getEmails().add(email);
 	}
 	
 	public void changeCredit(int credit) {
