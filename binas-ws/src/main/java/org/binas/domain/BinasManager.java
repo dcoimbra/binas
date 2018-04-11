@@ -1,8 +1,6 @@
 package org.binas.domain;
 
-import org.binas.domain.exception.AlreadyHasBinaException;
-import org.binas.domain.exception.NoCreditException;
-import org.binas.domain.exception.UserNotExistsException;
+import org.binas.domain.exception.*;
 import org.binas.ws.*;
 
 import java.util.*;
@@ -54,40 +52,37 @@ public class BinasManager {
 		return user;
 	}
 
-	public BinasUser activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
+	public BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
 
 		Pattern p = Pattern.compile("[a-z]*@[a-z]*\\.[a-z]*");
 		Matcher match = p.matcher(email);
 
 		if(!match.find()){
-			InvalidEmail faultInfo = new InvalidEmail();
-			throw new InvalidEmail_Exception("Email is invalid", faultInfo);
+			throw new InvalidEmailException("Email is invalid");
 		}
 		else if(!BinasUser.getEmails().add(email)){
-
-			EmailExists faultInfo = new EmailExists();
-			throw new EmailExists_Exception("Email already exists", faultInfo);
+			throw new EmailExistsException("Email already exists");
 		}
 
 		return new BinasUser(email, "pass");
 
 	}
 
-	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
+	public StationView getInfoStation(String stationId) throws InvalidStationException {
 
 		StationView view = stations.get(stationId);
 
 		if(view == null){
 			InvalidStation faultInfo = new InvalidStation();
-			throw new InvalidStation_Exception("Station is valid", faultInfo);
+			throw new InvalidStationException("Station is valid");
 		}
 
 		return view;
 	}
 
-	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
+	/*public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
 
-		Map<Double, StationView> distances = new TreeMap<>();
+		Map<Double, List<StationView>> distances = new TreeMap<>();
 		List<StationView> stationViews = new ArrayList<>();
 		Integer x1 = coordinates.getX();
 		Integer y1 = coordinates.getY();
@@ -102,13 +97,13 @@ public class BinasManager {
 			Double y = Math.pow(Math.abs(y1 - y2), 2);
 			Double hipotenusa = Math.sqrt(x + y);
 
-			distances.put(hipotenusa, station);
+			distances.put(hipotenusa, );
 
 		}
 
-		for(Map.Entry<Double, StationView> entry : distances.entrySet()) {
+		/*for(Map.Entry<StationView, Double> entry : distances.entrySet()) {
 
-			stationViews.add(entry.getValue());
+			stationViews.add(entry.getKey());
 
 			if(stationViews.size() == numberOfStations){
 				break;
@@ -117,7 +112,7 @@ public class BinasManager {
 		}
 
 		return stationViews;
-	}
+	}*/
 
 	public HashMap<String, StationView> getStations() {
 		return stations;

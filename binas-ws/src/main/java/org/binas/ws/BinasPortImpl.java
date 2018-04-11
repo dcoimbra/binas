@@ -2,10 +2,13 @@ package org.binas.ws;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.BinasUser;
+import org.binas.domain.exception.EmailExistsException;
+import org.binas.domain.exception.InvalidEmailException;
+import org.binas.domain.exception.InvalidStationException;
 import org.binas.domain.exception.UserNotExistsException;
 
 import javax.jws.WebService;
-import java.util.*;
+import java.util.List;
 
 @WebService(
 endpointInterface = "org.binas.ws.BinasPortType",
@@ -20,7 +23,7 @@ public class BinasPortImpl implements BinasPortType {
     @Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 
-		return BinasManager.getInstance().listStations(numberOfStations, coordinates);
+		return null;//BinasManager.getInstance().listStations(numberOfStations, coordinates);
     }
 
 	@Override
@@ -28,7 +31,7 @@ public class BinasPortImpl implements BinasPortType {
 		try {
 			return BinasManager.getInstance().getInfoStation(stationId);
 
-		}catch(InvalidStation_Exception e){
+		}catch(InvalidStationException e){
 			throwInvalidStation(e.getMessage());
 			return null;
 		}
@@ -54,10 +57,10 @@ public class BinasPortImpl implements BinasPortType {
 
 			return buildUserView(user);
 
-		}catch(EmailExists_Exception e){
+		}catch(EmailExistsException e){
 			throwEmailExists(e.getMessage());
 			return null;
-		}catch(InvalidEmail_Exception e){
+		}catch(InvalidEmailException e){
 			throwInvalidEmail(e.getMessage());
 			return null;
 		}
