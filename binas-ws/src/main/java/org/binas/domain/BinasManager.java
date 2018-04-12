@@ -87,10 +87,14 @@ public class BinasManager {
 
 	public BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
 
+		if(email == null){
+			throw new InvalidEmailException("Email is invalid");
+		}
+
 		Pattern p = Pattern.compile("[a-z0-9]+@[a-z0-9]+\\.[a-z]+");
 		Matcher match = p.matcher(email);
 
-		if(!match.find()){
+		if( !match.find() ){
 			throw new InvalidEmailException("Email is invalid");
 		}
 		else if(!BinasUser.getEmails().add(email)){
@@ -98,7 +102,6 @@ public class BinasManager {
 		}
 
 		BinasUser user = new BinasUser(email, "pass");
-
 		addUser(user);
 
 		return user;
