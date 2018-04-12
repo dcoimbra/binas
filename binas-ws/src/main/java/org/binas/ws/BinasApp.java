@@ -27,8 +27,6 @@ public class BinasApp {
 
 			endpoint.start();
 
-			System.out.println(endpoint.getPort().testPing("Server Binas"));
-
 			endpoint.awaitConnections();
 
 			endpoint.stop();

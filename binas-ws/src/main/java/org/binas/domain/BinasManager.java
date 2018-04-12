@@ -117,4 +117,10 @@ public class BinasManager {
 	public HashMap<String, StationView> getStations() {
 		return stations;
 	}
+
+	public void reset() {
+
+		users.clear();
+		stations.clear();
+	}
 }

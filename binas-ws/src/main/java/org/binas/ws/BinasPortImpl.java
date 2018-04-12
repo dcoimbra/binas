@@ -125,11 +125,11 @@ public class BinasPortImpl implements BinasPortType {
     	
     	return result;
     }
-    
 
+	/** Delete all users and stations. */
     @Override
     public void testClear(){
-    	//TODO
+		BinasManager.getInstance().reset();
     }
 
     @Override
