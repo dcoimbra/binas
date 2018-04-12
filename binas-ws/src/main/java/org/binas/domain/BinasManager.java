@@ -1,6 +1,8 @@
 package org.binas.domain;
 
 import org.binas.domain.exception.*;
+import org.binas.station.ws.NoBinaAvail_Exception;
+import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.*;
 
 import java.util.*;
@@ -34,17 +36,32 @@ public class BinasManager {
 		return getUser(email).getCredit();
 	}
 
-	public void rentBina(String stationId, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException {
-//		BinasUser user = getUser(email);
-//		int credit = user.getCredit();
-//		if ( credit < 1)
-//			throw new NoCreditException("No credit available");
-//		if(user.isWithBina())
-//			throw new AlreadyHasBinaException("User already has Bina");
-//		//TODO getStationClientById(stationId).rentBina();
-//		user.setCredit(credit - 1);
+	public void rentBina(String stationId, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
+		BinasUser user = getUser(email);
+		int credit = user.getCredit();
+		if ( credit < 1)
+			throw new NoCreditException("No credit available");
+		if(user.isWithBina())
+			throw new AlreadyHasBinaException("User already has Bina");
+		try {
+			getStationClientById(stationId).getBina();
+			user.setCredit(credit - 1);
+		} catch (NoBinaAvail_Exception e) {
+			throw new NoBinaAvailException("No bicicles available");
+		}
+		
 	}
 	
+	private StationClient getStationClientById(String stationId) { //throws InvalidStationException {
+		Map<String, StationClient> stationClients = new HashMap<>();
+		StationClient sc = stationClients.get(stationId);
+		if(sc == null){
+//			throw new InvalidStationException("Station doesn't exist");
+			System.out.printf("Station %s%n not found. Moving on...", stationId);
+		}
+		return null;
+	}
+
 	private BinasUser getUser(String email) throws UserNotExistsException {
 		BinasUser user = users.get(email);
 		if (user == null)
