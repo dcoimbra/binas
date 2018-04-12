@@ -29,6 +29,11 @@ public class BinasEndpointManager {
 
 	/** Web Service location to publish */
 	private String wsURL = null;
+	
+	// /** Obtain WebServer URL */
+	public String getWsURL() {
+		return wsURL;
+	}
 
 	/** Port implementation */
 	private BinasPortImpl portImpl = new BinasPortImpl(this);

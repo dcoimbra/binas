@@ -99,26 +99,26 @@ public class BinasPortImpl implements BinasPortType {
     public String testPing(String inputMessage){
     	String result = "";
     	try {
-    			System.out.printf("Contacting UDDI \n");
-    			UDDINaming uddiNaming = endpointManager.getUddiNaming();
+			System.out.printf("Contacting UDDI \n");
+			UDDINaming uddiNaming = endpointManager.getUddiNaming();
 
-    			System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), "T07_Station%");
-    			Collection<UDDIRecord> endpointAddress = uddiNaming.listRecords("T07_Station%");
+			System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), "T07_Station%");
+			Collection<UDDIRecord> endpointAddress = uddiNaming.listRecords("T07_Station%");
 
-    			if (endpointAddress.isEmpty()) {
-    				System.out.println("Not found!");
-    				return"";
-    			} else {
-    				for(UDDIRecord r : endpointAddress) {
-    					System.out.printf("Found %s%n", r.toString());
-    					try {
-							StationClient sc = new StationClient(endpointManager.getUddiURL(), r.getOrgName());
-							result += sc.testPing(inputMessage)+";\n";
-						} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
-    				}
-    				
-    			}
-    		}catch(UDDINamingException e){System.out.printf("UDDINamingException");}
+			if (endpointAddress.isEmpty()) {
+				System.out.println("Not found!");
+				return"";
+			} else {
+				for(UDDIRecord r : endpointAddress) {
+					System.out.printf("Found %s%n", r.toString());
+					try {
+						StationClient sc = new StationClient(endpointManager.getWsURL(), r.getOrgName());
+						result += sc.testPing(inputMessage)+";\n";
+					} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
+				}
+				
+			}
+		}catch(UDDINamingException e){System.out.printf("UDDINamingException");}
     	
     	return result;
     }
