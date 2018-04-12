@@ -32,8 +32,6 @@ public class StationClient implements StationPortType {
 	/** WS end point address */
 	private String wsURL = null; // default value is defined inside WSDL
 
-	private String endpointAddress = null;
-
 	public String getWsURL() {
 		return wsURL;
 	}
@@ -70,13 +68,13 @@ public class StationClient implements StationPortType {
 			UDDINaming uddiNaming = new UDDINaming(uddiURL);
 
 			System.out.printf("Looking for '%s'%n", wsName);
-			this.endpointAddress = uddiNaming.lookup(wsName);
-
-			if (endpointAddress == null) {
+			this.wsURL = uddiNaming.lookup(wsName);
+			
+			if (wsURL == null) {
 				System.out.println("Not found!");
 				throw new StationClientException();
 			} else {
-				System.out.printf("Found %s%n", endpointAddress);
+				System.out.printf("Found %s%n", wsURL);
 			}
 		}catch(UDDINamingException e){
 			System.out.printf("UDDINamingException");
@@ -99,7 +97,7 @@ public class StationClient implements StationPortType {
 				 System.out.println("Setting endpoint address ...");
 			 BindingProvider bindingProvider = (BindingProvider) port;
 			 Map<String, Object> requestContext = bindingProvider.getRequestContext();
-			 requestContext.put(ENDPOINT_ADDRESS_PROPERTY, this.endpointAddress);
+			 requestContext.put(ENDPOINT_ADDRESS_PROPERTY, this.wsURL);
 		 }
 	}
 
