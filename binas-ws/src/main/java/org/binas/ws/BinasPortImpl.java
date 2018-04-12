@@ -112,7 +112,7 @@ public class BinasPortImpl implements BinasPortType {
 				for(UDDIRecord r : endpointAddress) {
 					System.out.printf("Found %s%n", r.toString());
 					try {
-						StationClient sc = new StationClient(endpointManager.getWsURL(), r.getOrgName());
+						StationClient sc = new StationClient(r.getUrl());
 						result += sc.testPing(inputMessage)+";\n";
 					} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
 				}
