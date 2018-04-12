@@ -117,4 +117,25 @@ public class BinasManager {
 	public HashMap<String, StationView> getStations() {
 		return stations;
 	}
+
+	public void reset() {
+
+		users.clear();
+	}
+
+	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInit_Exception {
+		//TODO
+	}
+
+	public void testInit() throws BadInitException {
+
+		BinasUser user = null;
+		try {
+			user = activateUser("david@tecnico.pt");
+		} catch (EmailExistsException e) {
+			throw new BadInitException(e.getMessage());
+		} catch (InvalidEmailException e) {
+			throw new BadInitException(e.getMessage());
+		}
+	}
 }

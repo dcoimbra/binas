@@ -16,6 +16,7 @@ public class BinasUser {
 		this.email = email;
 		this.password = password;
 
+		setCredit(10);
 		getEmails().add(email);
 	}
 	

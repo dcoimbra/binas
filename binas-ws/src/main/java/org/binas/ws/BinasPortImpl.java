@@ -2,12 +2,17 @@ package org.binas.ws;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.BinasUser;
-import org.binas.domain.exception.EmailExistsException;
-import org.binas.domain.exception.InvalidEmailException;
-import org.binas.domain.exception.InvalidStationException;
-import org.binas.domain.exception.UserNotExistsException;
+import org.binas.domain.exception.*;
+import org.binas.station.ws.cli.StationClient;
+import org.binas.station.ws.cli.StationClientException;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 import javax.jws.WebService;
+
+import java.util.Collection;
 import java.util.List;
 
 @WebService(
@@ -20,7 +25,13 @@ serviceName = "BinasService"
 )
 public class BinasPortImpl implements BinasPortType {
 
-    @Override
+	private BinasEndpointManager endpointManager;
+	
+    public BinasPortImpl(BinasEndpointManager binasEndpointManager) {
+    	this.endpointManager = binasEndpointManager;
+	}
+
+	@Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 
 		return null;//BinasManager.getInstance().listStations(numberOfStations, coordinates);
@@ -86,13 +97,36 @@ public class BinasPortImpl implements BinasPortType {
 
     @Override
     public String testPing(String inputMessage){
-    	//TODO
-        return "";
+    	String result = "";
+    	try {
+    			System.out.printf("Contacting UDDI \n");
+    			UDDINaming uddiNaming = endpointManager.getUddiNaming();
+
+    			System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), "T07_Station%");
+    			Collection<UDDIRecord> endpointAddress = uddiNaming.listRecords("T07_Station%");
+
+    			if (endpointAddress.isEmpty()) {
+    				System.out.println("Not found!");
+    				return"";
+    			} else {
+    				for(UDDIRecord r : endpointAddress) {
+    					System.out.printf("Found %s%n", r.toString());
+    					try {
+							StationClient sc = new StationClient(endpointManager.getUddiURL(), r.getOrgName());
+							result += sc.testPing(inputMessage)+";\n";
+						} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
+    				}
+    				
+    			}
+    		}catch(UDDINamingException e){System.out.printf("UDDINamingException");}
+    	
+    	return result;
     }
 
+	/** Delete all users and stations. */
     @Override
     public void testClear(){
-    	//TODO
+		BinasManager.getInstance().reset();
     }
 
     @Override
@@ -101,9 +135,17 @@ public class BinasPortImpl implements BinasPortType {
     }
 
     @Override
-    public void testInit(int userInitialPoints) throws BadInit_Exception{
-    	//TODO
-    }
+    public void testInit(int userInitialPoints) throws BadInit_Exception {
+
+		try {
+			BinasManager.getInstance().testInit();
+		}
+
+		catch (BadInitException e) {
+			throwBadInit(e.getMessage());
+			return;
+		}
+	}
 
     // Exceptions Helpers ---------------------------------------------------------------------------
     

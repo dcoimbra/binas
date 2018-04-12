@@ -59,7 +59,7 @@ public class StationEndpointManager {
 	}
 
 	/** constructor with provided web service URL */
-	/*public StationEndpointManager(String wsName, String uddiURL) {
+	/*public StationEndpointManager(String uddiURL, String wsName) {
 		this.wsName = wsName;
 		this.uddiURL = uddiURL;
 	}*/
@@ -122,7 +122,7 @@ public class StationEndpointManager {
 	private void publishToUDDI() throws Exception {
 		System.out.printf("Publishing '%s' to UDDI at %s%n", wsName, uddiURL);
 		uddiNaming = new UDDINaming(uddiURL);
-		uddiNaming.rebind(wsName, uddiURL);
+		uddiNaming.rebind(wsName, wsURL);
 	}
 
 	private void unpublishFromUDDI() {

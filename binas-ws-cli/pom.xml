@@ -23,7 +23,7 @@
 		<mainclass>org.binas.ws.cli.BinasClientApp</mainclass>
 
 		<group.id>T07</group.id>
-		<uddi.url>http://localhost:9090</uddi.url>
+		<uddi.url>http://t07:BKPafYt@uddi.sd.rnl.tecnico.ulisboa.pt:9090</uddi.url>
 		<ws.name>${group.id}_Binas</ws.name>
 		<supplier.ws.name>${group.id}_Binas</supplier.ws.name>
 		<ws.url>http://localhost:8080/binas-ws/endpoint</ws.url>
@@ -40,6 +40,12 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
+		</dependency>
+		<!-- UDDI Naming -->
+		<dependency>
+			<groupId>pt.ulisboa.tecnico.sdis</groupId>
+			<artifactId>uddi-naming</artifactId>
+			<version>1.2</version>
 		</dependency>
 	</dependencies>
 	<build>
