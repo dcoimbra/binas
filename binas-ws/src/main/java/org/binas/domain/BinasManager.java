@@ -64,7 +64,11 @@ public class BinasManager {
 			throw new EmailExistsException("Email already exists");
 		}
 
-		return new BinasUser(email, "pass");
+		BinasUser user = new BinasUser(email, "pass");
+
+		addUser(user);
+
+		return user;
 
 	}
 
@@ -116,6 +120,16 @@ public class BinasManager {
 
 	public HashMap<String, StationView> getStations() {
 		return stations;
+	}
+
+	public void addUser(BinasUser user) {
+
+		users.put(user.getEmail(), user);
+	}
+
+	public void addStation(StationView station) {
+
+		stations.put(station.getId(), station);
 	}
 
 	public void reset() {
