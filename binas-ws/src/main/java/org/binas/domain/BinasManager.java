@@ -48,6 +48,7 @@ public class BinasManager {
 			throw new AlreadyHasBinaException("User already has Bina");
 		try {
 			getStationClientById(stationId).getBina();
+			user.setWithBina(true);
 			user.setCredit(old_credit - 1);
 		} catch (NoBinaAvail_Exception e) {
 			throw new NoBinaAvailException("No bicicles available");
@@ -63,6 +64,7 @@ public class BinasManager {
 		}
 		try {
 			int bonus = getStationClientById(stationId).returnBina();
+			user.setWithBina(false);
 			user.setCredit(old_credit+bonus);
 		} catch (NoSlotAvail_Exception e) {
 			throw new FullStationException("Station is full");
