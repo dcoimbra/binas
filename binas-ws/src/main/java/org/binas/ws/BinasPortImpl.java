@@ -145,7 +145,33 @@ public class BinasPortImpl implements BinasPortType {
 
     @Override
     public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInit_Exception{
-    	//TODO
+
+        String result = "";
+        try {
+            System.out.printf("Contacting UDDI \n");
+            UDDINaming uddiNaming = endpointManager.getUddiNaming();
+
+            System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), stationId);
+            String endpointAddress = uddiNaming.lookup(stationId);
+
+            if (endpointAddress == null) {
+                System.out.println("Not found!");
+
+            } else {
+
+                StationClient sc = new StationClient(endpointManager.getWsURL(), stationId);
+
+				BinasManager.getInstance().addStationClient(sc);
+                BinasManager.getInstance().testInitStation(stationId, x, y, capacity, returnPrize);
+            }
+
+        } catch(UDDINamingException e){
+            System.out.printf("UDDINamingException");
+        } catch (StationClientException e) {
+            System.out.println(e.getMessage());
+        } catch (BadInitException e) {
+        	throwBadInit(e.getMessage());
+		}
     }
 
     @Override
@@ -157,7 +183,6 @@ public class BinasPortImpl implements BinasPortType {
 
 		catch (BadInitException e) {
 			throwBadInit(e.getMessage());
-			return;
 		}
 	}
 

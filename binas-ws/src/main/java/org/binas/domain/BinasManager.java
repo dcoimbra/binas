@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static HashMap<String, StationView> stations = new HashMap();
+	private static HashMap<String, StationView> stationViews = new HashMap();
+	private static HashMap<String, StationClient> stationClients = new HashMap();
+
 
 
 	// Singleton -------------------------------------------------------------
@@ -105,7 +107,7 @@ public class BinasManager {
 
 	public StationView getInfoStation(String stationId) throws InvalidStationException {
 
-		StationView view = stations.get(stationId);
+		StationView view = stationViews.get(stationId);
 
 		if(view == null){
 			InvalidStation faultInfo = new InvalidStation();
@@ -149,8 +151,8 @@ public class BinasManager {
 		return stationViews;
 	}*/
 
-	public HashMap<String, StationView> getStations() {
-		return stations;
+	public HashMap<String, StationView> getStationViews() {
+		return stationViews;
 	}
 
 	public void addUser(BinasUser user) {
@@ -158,9 +160,14 @@ public class BinasManager {
 		users.put(user.getEmail(), user);
 	}
 
-	public void addStation(StationView station) {
+	public void addStationView(StationView station) {
 
-		stations.put(station.getId(), station);
+		stationViews.put(station.getId(), station);
+	}
+
+	public void addStationClient(StationClient client) {
+
+		stationClients.put(client.getInfo().getId(), client);
 	}
 
 	public void reset() {
@@ -168,8 +175,21 @@ public class BinasManager {
 		users.clear();
 	}
 
-	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInit_Exception {
-		//TODO
+	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInitException {
+
+		StationClient client = stationClients.get(stationId);
+
+		try {
+			client.testInit(x, y, capacity, returnPrize);
+		} catch (org.binas.station.ws.BadInit_Exception e) {
+			throw new BadInitException(e.getMessage());
+		}
+
+		org.binas.station.ws.StationView oldStationView = client.getInfo();
+
+		org.binas.ws.StationView newStationView = buildStationView(oldStationView);
+
+		stationViews.put(newStationView.getId(), newStationView);
 	}
 
 	public void testInit() throws BadInitException {
@@ -182,5 +202,26 @@ public class BinasManager {
 		} catch (InvalidEmailException e) {
 			throw new BadInitException(e.getMessage());
 		}
+	}
+
+	/** Helper to build a Binas StationView from a Station StationView. */
+	private org.binas.ws.StationView buildStationView(org.binas.station.ws.StationView view) {
+		org.binas.ws.StationView newView = new StationView();
+		newView.setId(view.getId());
+		newView.setCoordinate(buildCoordinatesView(view.getCoordinate()));
+		newView.setCapacity(view.getCapacity());
+		newView.setTotalGets(view.getTotalGets());
+		newView.setTotalReturns(view.getTotalReturns());
+		newView.setFreeDocks(view.getFreeDocks());
+		newView.setAvailableBinas(view.getAvailableBinas());
+		return newView;
+	}
+
+	/** Helper to build a Binas CoordinatesView from a Station Coordinates view. */
+	private org.binas.ws.CoordinatesView buildCoordinatesView(org.binas.station.ws.CoordinatesView view) {
+		CoordinatesView newView = new CoordinatesView();
+		newView.setX(view.getX());
+		newView.setY(view.getY());
+		return newView;
 	}
 }
