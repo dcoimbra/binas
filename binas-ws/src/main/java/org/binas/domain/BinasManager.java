@@ -1,6 +1,8 @@
 package org.binas.domain;
 
 import org.binas.domain.exception.*;
+import org.binas.station.ws.NoBinaAvail_Exception;
+import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.*;
 
@@ -37,17 +39,45 @@ public class BinasManager {
 		return getUser(email).getCredit();
 	}
 
-	public void rentBina(String stationId, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException {
-//		BinasUser user = getUser(email);
-//		int credit = user.getCredit();
-//		if ( credit < 1)
-//			throw new NoCreditException("No credit available");
-//		if(user.isWithBina())
-//			throw new AlreadyHasBinaException("User already has Bina");
-//		//TODO getStationClientById(stationId).rentBina();
-//		user.setCredit(credit - 1);
+	public void rentBina(String stationId, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
+		BinasUser user = getUser(email);
+		int old_credit = user.getCredit();
+		if ( old_credit < 1)
+			throw new NoCreditException("No credit available");
+		if(user.isWithBina())
+			throw new AlreadyHasBinaException("User already has Bina");
+		try {
+			getStationClientById(stationId).getBina();
+			user.setCredit(old_credit - 1);
+		} catch (NoBinaAvail_Exception e) {
+			throw new NoBinaAvailException("No bicicles available");
+		}
+		
 	}
 	
+	public void returnBina(String stationId, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
+		BinasUser user = getUser(email);
+		int old_credit = user.getCredit();
+		if(!user.isWithBina()) {
+			throw new NoBinaRentedException("User currently has no bicicle");
+		}
+		try {
+			int bonus = getStationClientById(stationId).returnBina();
+			user.setCredit(old_credit+bonus);
+		} catch (NoSlotAvail_Exception e) {
+			throw new FullStationException("Station is full");
+		}
+	}
+	
+	private StationClient getStationClientById(String stationId) throws InvalidStationException {
+		Map<String, StationClient> stationClients = new HashMap<>();
+		StationClient sc = stationClients.get(stationId);
+		if(sc == null){
+			throw new InvalidStationException("Station doesn't exist");
+		}
+		return null;
+	}
+
 	private BinasUser getUser(String email) throws UserNotExistsException {
 		BinasUser user = users.get(email);
 		if (user == null)
