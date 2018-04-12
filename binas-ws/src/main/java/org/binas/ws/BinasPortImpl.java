@@ -34,7 +34,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 
-		return null;//BinasManager.getInstance().listStations(numberOfStations, coordinates);
+		return BinasManager.getInstance().listStations(numberOfStations, coordinates);
     }
 
 	@Override

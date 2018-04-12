@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static HashMap<String, StationView> stationViews = new HashMap();
-	private static HashMap<String, StationClient> stationClients = new HashMap();
+	private static Map<String, StationView> stationViews = new HashMap<>();
+	private static Map<String, StationClient> stationClients = new HashMap<>();
 
 
 
@@ -87,7 +87,7 @@ public class BinasManager {
 
 	public BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
 
-		Pattern p = Pattern.compile("[a-z]*@[a-z]*\\.[a-z]*");
+		Pattern p = Pattern.compile("[a-z0-9]+@[a-z0-9]+\\.[a-z]+");
 		Matcher match = p.matcher(email);
 
 		if(!match.find()){
@@ -110,49 +110,62 @@ public class BinasManager {
 		StationView view = stationViews.get(stationId);
 
 		if(view == null){
-			InvalidStation faultInfo = new InvalidStation();
 			throw new InvalidStationException("Station is valid");
 		}
 
 		return view;
 	}
 
-	/*public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
+	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
 
-		Map<Double, List<StationView>> distances = new TreeMap<>();
-		List<StationView> stationViews = new ArrayList<>();
+		Map<Integer, List<StationView>> distances = new TreeMap<>();
 		Integer x1 = coordinates.getX();
 		Integer y1 = coordinates.getY();
 
-		for (StationView station : stations.values()) {
+		for (StationView station : stationViews.values()) {
 
 			CoordinatesView c = station.getCoordinate();
 			Integer x2 = c.getX();
 			Integer y2 = c.getY();
 
-			Double x = Math.pow(Math.abs(x1 - x2), 2);
-			Double y = Math.pow(Math.abs(y1 - y2), 2);
-			Double hipotenusa = Math.sqrt(x + y);
+			int x = (int) Math.pow(Math.abs(x1 - x2), 2);
+			int y = (int) Math.pow(Math.abs(y1 - y2), 2);
+			int hipoQuadrada = x + y;
 
-			distances.put(hipotenusa, );
+			if(distances.containsKey(hipoQuadrada)){
+				distances.get(hipoQuadrada).add(station);
+			}
+			else{
+				List<StationView> list = new ArrayList<>();
+				list.add(station);
 
+				distances.put(hipoQuadrada, list);
+
+			}
 		}
 
-		/*for(Map.Entry<StationView, Double> entry : distances.entrySet()) {
+		return ascendingStationViews(numberOfStations, distances);
 
-			stationViews.add(entry.getKey());
+	}
 
-			if(stationViews.size() == numberOfStations){
-				break;
+	private List<StationView> ascendingStationViews(Integer numberOfStations, Map<Integer, List<StationView>> distances) {
+
+		List<StationView> stationViewList = new ArrayList<>();
+
+		for(Map.Entry<Integer, List<StationView>> entry : distances.entrySet()) {
+
+			for(StationView view : entry.getValue()){
+				stationViewList.add(view);
+
+				if(stationViews.size() == numberOfStations){
+					return stationViewList;
+				}
+
 			}
 
 		}
 
-		return stationViews;
-	}*/
-
-	public HashMap<String, StationView> getStationViews() {
-		return stationViews;
+		return stationViewList;
 	}
 
 	public void addUser(BinasUser user) {
