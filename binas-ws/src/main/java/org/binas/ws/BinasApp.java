@@ -22,9 +22,12 @@ public class BinasApp {
 
 		System.out.println(BinasApp.class.getSimpleName() + " running");
 
+
 		try {
 
 			endpoint.start();
+
+			System.out.println(endpoint.getPort().testPing("Server Binas"));
 
 			endpoint.awaitConnections();
 
