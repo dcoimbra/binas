@@ -2,10 +2,7 @@ package org.binas.ws;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.BinasUser;
-import org.binas.domain.exception.EmailExistsException;
-import org.binas.domain.exception.InvalidEmailException;
-import org.binas.domain.exception.InvalidStationException;
-import org.binas.domain.exception.UserNotExistsException;
+import org.binas.domain.exception.*;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.cli.StationClientException;
 
@@ -138,9 +135,17 @@ public class BinasPortImpl implements BinasPortType {
     }
 
     @Override
-    public void testInit(int userInitialPoints) throws BadInit_Exception{
-    	//TODO
-    }
+    public void testInit(int userInitialPoints) throws BadInit_Exception {
+
+		try {
+			BinasManager.getInstance().testInit();
+		}
+
+		catch (BadInitException e) {
+			throwBadInit(e.getMessage());
+			return;
+		}
+	}
 
     // Exceptions Helpers ---------------------------------------------------------------------------
     
