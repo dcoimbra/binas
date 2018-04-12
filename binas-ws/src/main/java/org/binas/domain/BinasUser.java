@@ -15,7 +15,9 @@ public class BinasUser {
 	protected BinasUser(String email, String password) {
 		this.email = email;
 		this.password = password;
+
 		setCredit(10);
+		getEmails().add(email);
 	}
 	
 	public void changeCredit(int credit) {
