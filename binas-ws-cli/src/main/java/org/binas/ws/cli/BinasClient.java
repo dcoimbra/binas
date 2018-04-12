@@ -23,6 +23,9 @@ import org.binas.ws.StationView;
 import org.binas.ws.UserNotExists_Exception;
 import org.binas.ws.UserView;
 
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+
 /**
  * Client.
  *
@@ -77,7 +80,23 @@ public class BinasClient implements BinasPortType {
 
     /** UDDI lookup */
     private void uddiLookup() throws BinasClientException {
-		// TODO
+    	try {
+			System.out.printf("Contacting UDDI at %s%n", uddiURL);
+			UDDINaming uddiNaming = new UDDINaming(uddiURL);
+
+			System.out.printf("Looking for '%s'%n", wsName);
+			this.wsURL = uddiNaming.lookup(wsName);
+			
+			if (wsURL == null) {
+				System.out.println("Not found!");
+				throw new BinasClientException();
+			} else {
+				System.out.printf("Found %s%n", wsURL);
+			}
+		}catch(UDDINamingException e){
+			System.out.printf("UDDINamingException");
+
+		}
     }
 
     /** Stub creation and configuration */
