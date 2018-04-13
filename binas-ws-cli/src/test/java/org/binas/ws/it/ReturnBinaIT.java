@@ -1,11 +1,19 @@
 package org.binas.ws.it;
 
+import org.binas.ws.FullStation_Exception;
+import org.binas.ws.InvalidStation_Exception;
+import org.binas.ws.NoBinaRented_Exception;
+import org.binas.ws.UserNotExists_Exception;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 public class ReturnBinaIT extends BaseIT{
 
- /*   @BeforeClass
+    @BeforeClass
     public static void setUp() throws Exception{
         client.testInit(10);
-        client.rentBina("T07_Station01", "david@tecnico.pt");
+        client.rentBina("T07_Station1", "david@tecnico.pt");
     }
 
     @Test(expected = InvalidStation_Exception.class)
@@ -13,14 +21,14 @@ public class ReturnBinaIT extends BaseIT{
         client.returnBina("", "david@tecnico.pt");
     }
 
-    @Test(expected = InvalidEmail_Exception.class)
+    @Test(expected = UserNotExists_Exception.class)
     public void returnBinaEmptyEmailTest() throws UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception, InvalidStation_Exception {
-        client.returnBina("T07_Station01", "");
+        client.returnBina("T07_Station1", "");
     }
 
-    @Test(expected = InvalidEmail_Exception.class)
+    @Test(expected = UserNotExists_Exception.class)
     public void returnBinaNullEmailTest() throws UserNotExists_Exception, NoBinaRented_Exception, FullStation_Exception, InvalidStation_Exception {
-        client.returnBina("T07_Station01", null);
+        client.returnBina("T07_Station1", null);
     }
 
     @Test(expected = InvalidStation_Exception.class)
@@ -31,5 +39,5 @@ public class ReturnBinaIT extends BaseIT{
     @AfterClass
     public static void cleanup() {
         client.testClear();
-    }*/
+    }
 }
