@@ -33,11 +33,11 @@ public class BinasManager {
 		return SingletonHolder.INSTANCE;
 	}
 
-	public int getCredit(String email) throws UserNotExistsException {
+	public synchronized int getCredit(String email) throws UserNotExistsException {
 		return getUser(email).getCredit();
 	}
 
-	public void rentBina(StationClient station, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
+	public synchronized void rentBina(StationClient station, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
 		if ( old_credit < 1)
@@ -54,7 +54,7 @@ public class BinasManager {
 		
 	}
 	
-	public void returnBina(StationClient station, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
+	public synchronized void returnBina(StationClient station, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
 		if(!user.isWithBina()) {
@@ -70,7 +70,7 @@ public class BinasManager {
 	}
 	
 
-	private BinasUser getUser(String email) throws UserNotExistsException {
+	private synchronized BinasUser getUser(String email) throws UserNotExistsException {
 		if(email == null || email.equals(""))
 			throw new UserNotExistsException("No user referred");
 		BinasUser user = users.get(email);
@@ -79,7 +79,7 @@ public class BinasManager {
 		return user;
 	}
 
-	public BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
+	public synchronized BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
 
 		if(email == null){
 			throw new InvalidEmailException("Email is invalid");
@@ -103,7 +103,7 @@ public class BinasManager {
 
 	}
 
-	public StationView getInfoStation(StationClient station) throws InvalidStationException {
+	public synchronized StationView getInfoStation(StationClient station) throws InvalidStationException {
 
 		StationView view = buildStationView(station.getInfo());
 
@@ -114,7 +114,7 @@ public class BinasManager {
 		return view;
 	}
 
-	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
+	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
 		if(!checkArguments(numberOfStations, coordinates)){
 			return new ArrayList<>();
@@ -183,7 +183,7 @@ public class BinasManager {
 		users.put(user.getEmail(), user);
 	}
 
-	public List<StationView> getStationViews(Collection<StationClient> stationClients) {
+	public synchronized List<StationView> getStationViews(Collection<StationClient> stationClients) {
 		List<StationView> stationViews = new ArrayList<>();
 		for(StationClient sc : stationClients) {
 			stationViews.add(buildStationView(sc.getInfo()));
@@ -208,7 +208,7 @@ public class BinasManager {
 		return result;
 	}
 
-	public void testInitStation(StationClient client, int x, int y, int capacity, int returnPrize) throws BadInitException {
+	public synchronized void testInitStation(StationClient client, int x, int y, int capacity, int returnPrize) throws BadInitException {
 
 		if(x < 0 || y < 0 || capacity <= 0 || returnPrize < 0)
 			throw new BadInitException();
@@ -224,7 +224,7 @@ public class BinasManager {
 
 	}
 
-	public void testInit(int userInitialPoints) throws BadInitException {
+	public synchronized void testInit(int userInitialPoints) throws BadInitException {
 
 		if (userInitialPoints < 0 ) {
 
