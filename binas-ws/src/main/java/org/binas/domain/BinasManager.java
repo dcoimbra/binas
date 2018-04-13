@@ -1,30 +1,14 @@
 package org.binas.domain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.binas.domain.exception.AlreadyHasBinaException;
-import org.binas.domain.exception.BadInitException;
-import org.binas.domain.exception.EmailExistsException;
-import org.binas.domain.exception.FullStationException;
-import org.binas.domain.exception.InvalidEmailException;
-import org.binas.domain.exception.InvalidStationException;
-import org.binas.domain.exception.NoBinaAvailException;
-import org.binas.domain.exception.NoBinaRentedException;
-import org.binas.domain.exception.NoCreditException;
-import org.binas.domain.exception.UserNotExistsException;
-import org.binas.station.ws.BadInit_Exception;
+import org.binas.domain.exception.*;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.ws.CoordinatesView;
-import org.binas.ws.StationView;
+import org.binas.ws.*;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BinasManager {
 	
@@ -212,18 +196,32 @@ public class BinasManager {
 
 	public void testInitStation(StationClient client, int x, int y, int capacity, int returnPrize) throws BadInitException {
 
+		if(x < 0 || y < 0 || capacity <= 0 || returnPrize < 0)
+			throw new BadInitException();
+		if(x > 100 || y > 100)
+			throw new BadInitException();
+
+		
 		try {
 			client.testInit(x, y, capacity, returnPrize);
-		} catch (BadInit_Exception e) {
+		} catch (org.binas.station.ws.BadInit_Exception e) {
 			throw new BadInitException(e.getMessage());
 		}
+
 	}
 
-	public void testInit() throws BadInitException {
+	public void testInit(int userInitialPoints) throws BadInitException {
+
+		if (userInitialPoints < 0 ) {
+
+			throw new BadInitException("Credit must be non negative");
+		}
 
 		BinasUser user = null;
 		try {
 			user = activateUser("david@tecnico.pt");
+
+			user.setCredit(userInitialPoints);
 		} catch (EmailExistsException e) {
 			throw new BadInitException(e.getMessage());
 		} catch (InvalidEmailException e) {
