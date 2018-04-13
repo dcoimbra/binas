@@ -27,6 +27,15 @@ public class ReturnBinaIT extends BaseIT {
 		Assert.assertEquals(nbinas+1, client.getInfo().getAvailableBinas());
 	}
 	
+	@Test (expected = NoSlotAvail_Exception.class)
+	public void returnBinaNoSlotException() throws NoSlotAvail_Exception, BadInit_Exception {
+		client.testInit(10, 10, 20, 0);		
+		int nbinas = client.getInfo().getAvailableBinas();
+
+		Assert.assertEquals(20, nbinas);
+		client.returnBina();
+	}
+	
 	@AfterClass
 	public static void cleanup() {
 		client.testClear();

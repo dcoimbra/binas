@@ -11,8 +11,8 @@ public class GetInfoStationIT extends BaseIT {
 
     @Test
     public void success() throws InvalidStation_Exception, BadInit_Exception {
-
-       client.testInitStation("T07_Station1", 30, 40, 200, 20);
+    									// x, y, capacity, returnPrize
+       client.testInitStation("T07_Station1", 30, 40, 200, 20); 
 
        StationView station = client.getInfoStation("T07_Station1");
 
@@ -20,7 +20,6 @@ public class GetInfoStationIT extends BaseIT {
         Assert.assertEquals(30, (int) station.getCoordinate().getX());
         Assert.assertEquals(40, (int) station.getCoordinate().getY());
         Assert.assertEquals(200, station.getCapacity());
-        Assert.assertEquals(20, station.getTotalReturns());
 
     }
 

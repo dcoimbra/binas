@@ -13,8 +13,6 @@ import java.util.regex.Pattern;
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static Map<String, StationView> stationViews = new HashMap<>();
-	private static Map<String, StationClient> stationClients = new HashMap<>();
 
 
 
@@ -39,7 +37,7 @@ public class BinasManager {
 		return getUser(email).getCredit();
 	}
 
-	public void rentBina(String stationId, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
+	public void rentBina(StationClient station, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
 		if ( old_credit < 1)
@@ -47,7 +45,7 @@ public class BinasManager {
 		if(user.isWithBina())
 			throw new AlreadyHasBinaException("User already has Bina");
 		try {
-			getStationClientById(stationId).getBina();
+			station.getBina();
 			user.setWithBina(true);
 			user.setCredit(old_credit - 1);
 		} catch (NoBinaAvail_Exception e) {
@@ -56,14 +54,14 @@ public class BinasManager {
 		
 	}
 	
-	public void returnBina(String stationId, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
+	public void returnBina(StationClient station, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
 		if(!user.isWithBina()) {
 			throw new NoBinaRentedException("User currently has no bicicle");
 		}
 		try {
-			int bonus = getStationClientById(stationId).returnBina();
+			int bonus = station.returnBina();
 			user.setWithBina(false);
 			user.setCredit(old_credit+bonus);
 		} catch (NoSlotAvail_Exception e) {
@@ -71,17 +69,6 @@ public class BinasManager {
 		}
 	}
 	
-	private StationClient getStationClientById(String stationId) throws InvalidStationException {
-		StationClient sc = stationClients.get(stationId);
-		if(sc == null){
-			throw new InvalidStationException("Station doesn't exist");
-		}
-		return sc;
-	}
-	
-	public boolean isInitStationClients() {
-		return !stationClients.isEmpty();
-	}
 
 	private BinasUser getUser(String email) throws UserNotExistsException {
 		BinasUser user = users.get(email);
@@ -102,7 +89,8 @@ public class BinasManager {
 		if( !match.find() ){
 			throw new InvalidEmailException("Email is invalid");
 		}
-		else if(!BinasUser.getEmails().add(email)){
+		
+		if(users.containsKey(email)){
 			throw new EmailExistsException("Email already exists");
 		}
 
@@ -113,24 +101,24 @@ public class BinasManager {
 
 	}
 
-	public StationView getInfoStation(String stationId) throws InvalidStationException {
+	public StationView getInfoStation(StationClient station) throws InvalidStationException {
 
-		StationView view = stationViews.get(stationId);
+		StationView view = buildStationView(station.getInfo());
 
 		if(view == null){
-			throw new InvalidStationException("Station is valid");
+			throw new InvalidStationException("Station is invalid");
 		}
 
 		return view;
 	}
 
-	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
+	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
 		Map<Integer, List<StationView>> distances = new TreeMap<>();
 		Integer x1 = coordinates.getX();
 		Integer y1 = coordinates.getY();
 
-		for (StationView station : stationViews.values()) {
+		for (StationView station : getStationViews(stationClients)) {
 
 			CoordinatesView c = station.getCoordinate();
 			Integer x2 = c.getX();
@@ -165,7 +153,7 @@ public class BinasManager {
 			for(StationView view : entry.getValue()){
 				stationViewList.add(view);
 
-				if(stationViews.size() == numberOfStations){
+				if(stationViewList.size() == numberOfStations){
 					return stationViewList;
 				}
 
@@ -181,42 +169,45 @@ public class BinasManager {
 		users.put(user.getEmail(), user);
 	}
 
-	public void addStationView(StationView station) {
-
-		stationViews.put(station.getId(), station);
+	public List<StationView> getStationViews(Collection<StationClient> stationClients) {
+		List<StationView> stationViews = new ArrayList<>();
+		for(StationClient sc : stationClients) {
+			stationViews.add(buildStationView(sc.getInfo()));
+		}
+		return stationViews;
 	}
 
-	public void addStationClient(StationClient client) {
-
-		stationClients.put(client.getInfo().getId(), client);
-	}
-
+	/** Delete all users.*/
 	public void reset() {
 
-		BinasUser.getEmails().clear();
 		users.clear();
 	}
+	
+	/** Test related methods */
+	
+	public String testPing(String inputMessage, Collection<StationClient> stationClients) {
+		String result = "Test Ping:\n";
+		for (StationClient sc : stationClients) {
+			result += sc.testPing(inputMessage)+"\n";
+		}
+		
+		return result;
+	}
 
-	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInitException {
+	public void testInitStation(StationClient client, int x, int y, int capacity, int returnPrize) throws BadInitException {
 
 		if(x < 0 || y < 0 || capacity <= 0 || returnPrize < 0)
 			throw new BadInitException();
 		if(x > 100 || y > 100)
 			throw new BadInitException();
 
-		StationClient client = stationClients.get(stationId);
-
+		
 		try {
 			client.testInit(x, y, capacity, returnPrize);
 		} catch (org.binas.station.ws.BadInit_Exception e) {
 			throw new BadInitException(e.getMessage());
 		}
 
-		org.binas.station.ws.StationView oldStationView = client.getInfo();
-
-		org.binas.ws.StationView newStationView = buildStationView(oldStationView);
-
-		stationViews.put(newStationView.getId(), newStationView);
 	}
 
 	public void testInit(int userInitialPoints) throws BadInitException {
