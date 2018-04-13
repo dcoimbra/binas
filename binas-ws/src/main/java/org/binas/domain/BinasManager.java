@@ -4,11 +4,10 @@ import org.binas.domain.exception.*;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.ws.*;
+import org.binas.ws.CoordinatesView;
+import org.binas.ws.StationView;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class BinasManager {
 	
@@ -86,10 +85,7 @@ public class BinasManager {
 			throw new InvalidEmailException("Email is invalid");
 		}
 
-		Pattern p = Pattern.compile("[a-z0-9]+@[a-z0-9]+|\\.[a-z]+");
-		Matcher match = p.matcher(email);
-
-		if( !match.find() ){
+		if( !email.matches("[a-z0-9]+@[a-z0-9]+\\.[a-z]+")){
 			throw new InvalidEmailException("Email is invalid");
 		}
 		
