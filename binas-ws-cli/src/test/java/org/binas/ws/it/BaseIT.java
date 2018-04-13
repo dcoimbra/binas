@@ -22,6 +22,7 @@ public class BaseIT {
 	protected final static String STATION_ID1 = "T07_Station1";
 	protected final static String STATION_ID2 = "T07_Station2";
 	protected final static String STATION_ID3 = "T07_Station3";
+	protected final static String EMAIL_DAVID = "david@tecnico.pt";
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {

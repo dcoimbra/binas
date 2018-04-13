@@ -14,8 +14,9 @@ public class GetCreditIT extends BaseIT {
     public void success() throws UserNotExists_Exception, EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception {
 
         client.testInit(20);
+        client.activateUser(EMAIL_DAVID);
 
-        Assert.assertEquals(20, client.getCredit("david@tecnico.pt"));
+        Assert.assertEquals(20, client.getCredit(EMAIL_DAVID));
     }
 
     @Test(expected = BadInit_Exception.class)
