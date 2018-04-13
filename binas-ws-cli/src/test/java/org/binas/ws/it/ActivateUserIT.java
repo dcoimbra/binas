@@ -58,6 +58,13 @@ public class ActivateUserIT extends BaseIT{
         client.activateUser(email);
     }
 
+    @Test(expected = InvalidEmail_Exception.class)
+    public void activateUserNoDomain3Test() throws EmailExists_Exception, InvalidEmail_Exception{
+        String email = "mario@lisboa.";
+
+        client.activateUser(email);
+    }
+
     @AfterClass
     public static void cleanup() {
         client.testClear();

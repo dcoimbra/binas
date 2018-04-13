@@ -22,23 +22,18 @@ public class ListStationsIT extends BaseIT {
         client.testInitStation(STATION_ID1, 22, 7, 6, 2);
         client.testInitStation(STATION_ID2, 80, 20, 12, 1);
         client.testInitStation(STATION_ID3, 50, 50, 20, 0);
-        client.testInitStation(STATION_ID4, 2, 3, 10, 0);
-        client.testInitStation(STATION_ID5, 10, 10, 10, 0);
-        client.testInitStation(STATION_ID6, 2, 4, 10, 0);
-        client.testInitStation(STATION_ID7, 80, 80, 10, 0);
-        client.testInitStation(STATION_ID8, 90, 90, 10, 0);
     }
 
     @Test
     public void success1(){
-        coordinatesView.setX(3);
-        coordinatesView.setY(4);
+        coordinatesView.setX(60);
+        coordinatesView.setY(20);
         List<StationView> list = client.listStations(3, coordinatesView);
 
         List<String> expected = new ArrayList<>();
-        expected.add(STATION_ID6);
-        expected.add(STATION_ID4);
-        expected.add(STATION_ID5);
+        expected.add(STATION_ID2);
+        expected.add(STATION_ID3);
+        expected.add(STATION_ID1);
 
         for(int i = 0; i < expected.size(); i++){
             Assert.assertEquals(expected.get(i), list.get(i).getId());
@@ -50,14 +45,12 @@ public class ListStationsIT extends BaseIT {
     public void success2(){
         coordinatesView.setX(3);
         coordinatesView.setY(4);
-        List<StationView> list = client.listStations(5, coordinatesView);
+        List<StationView> list = client.listStations(3, coordinatesView);
 
         List<String> expected = new ArrayList<>();
-        expected.add(STATION_ID6);
-        expected.add(STATION_ID4);
-        expected.add(STATION_ID5);
         expected.add(STATION_ID1);
         expected.add(STATION_ID3);
+        expected.add(STATION_ID2);
 
         for(int i = 0; i < expected.size(); i++){
             Assert.assertEquals(expected.get(i), list.get(i).getId());
@@ -65,20 +58,15 @@ public class ListStationsIT extends BaseIT {
     }
 
     @Test
-    public void success3(){
-        coordinatesView.setX(3);
-        coordinatesView.setY(4);
-        List<StationView> list = client.listStations(8, coordinatesView);
+    public void successEqualDistances(){
+        coordinatesView.setX(51);
+        coordinatesView.setY(14);
+        List<StationView> list = client.listStations(3, coordinatesView);
 
         List<String> expected = new ArrayList<>();
-        expected.add(STATION_ID6);
-        expected.add(STATION_ID4);
-        expected.add(STATION_ID5);
+        expected.add(STATION_ID2);
         expected.add(STATION_ID1);
         expected.add(STATION_ID3);
-        expected.add(STATION_ID2);
-        expected.add(STATION_ID7);
-        expected.add(STATION_ID8);
 
         for(int i = 0; i < expected.size(); i++){
             Assert.assertEquals(expected.get(i), list.get(i).getId());
@@ -109,21 +97,6 @@ public class ListStationsIT extends BaseIT {
         assertTrue(list.isEmpty());
     }
 
-
-
-    @Test
-    public void listStations2EqualDistancesTest(){
-        coordinatesView.setX(3);
-        coordinatesView.setY(4);
-        client.listStations(3, coordinatesView);
-    }
-
-    @Test
-    public void listStations3EqualDistancesTest(){
-        coordinatesView.setX(3);
-        coordinatesView.setY(4);
-        client.listStations(3, coordinatesView);
-    }
 
     @AfterClass
     public static void cleanup() {
