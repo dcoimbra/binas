@@ -129,6 +129,7 @@ public class BinasPortImpl implements BinasPortType {
     @Override
     public void testClear(){
 		BinasManager.getInstance().reset();
+		endpointManager.testClearStationClients();
     }
     
     

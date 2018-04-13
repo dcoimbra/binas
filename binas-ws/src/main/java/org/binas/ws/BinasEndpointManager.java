@@ -182,4 +182,10 @@ public class BinasEndpointManager {
 		
 		return sc;
     }
+    
+    public void testClearStationClients() {
+    	for(StationClient sc : getStationClients().values()) {
+    		sc.testClear();
+    	}
+    }
 }
