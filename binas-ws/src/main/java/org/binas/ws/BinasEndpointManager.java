@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.xml.ws.Endpoint;
 
-import org.binas.domain.BinasManager;
 import org.binas.domain.exception.InvalidStationException;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.cli.StationClientException;

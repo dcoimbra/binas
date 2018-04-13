@@ -19,9 +19,9 @@ import org.binas.domain.exception.NoBinaAvailException;
 import org.binas.domain.exception.NoBinaRentedException;
 import org.binas.domain.exception.NoCreditException;
 import org.binas.domain.exception.UserNotExistsException;
+import org.binas.station.ws.BadInit_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.BadInit_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.CoordinatesView;
 import org.binas.ws.StationView;
@@ -193,9 +193,21 @@ public class BinasManager {
 		return stationViews;
 	}
 
+	/** Delete all users.*/
 	public void reset() {
 
 		users.clear();
+	}
+	
+	/** Test related methods */
+	
+	public String testPing(String inputMessage, Collection<StationClient> stationClients) {
+		String result = "Test Ping:\n";
+		for (StationClient sc : stationClients) {
+			result += sc.testPing(inputMessage)+"\n";
+		}
+		
+		return result;
 	}
 
 	public void testInitStation(StationClient client, int x, int y, int capacity, int returnPrize) throws BadInitException {

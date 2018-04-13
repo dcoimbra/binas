@@ -101,17 +101,18 @@ public class BinasClient implements BinasPortType {
 
     /** Stub creation and configuration */
     private void createStub() {
-		 if (verbose)
-		 System.out.println("Creating stub ...");
+		 if (verbose) {
+			 System.out.println("Creating stub ...");
+		 }
 		 service = new BinasService();
 		 port = service.getBinasPort();
 		
 		 if (wsURL != null) {
-		 if (verbose)
-		 System.out.println("Setting endpoint address ...");
+		 if (verbose) {
+			 System.out.println("Setting endpoint address ...");
+		 }
 		 BindingProvider bindingProvider = (BindingProvider) port;
-		 Map<String, Object> requestContext = bindingProvider
-		 .getRequestContext();
+		 Map<String, Object> requestContext = bindingProvider.getRequestContext();
 		 requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
 		 }
     }

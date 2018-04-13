@@ -1,6 +1,5 @@
 package org.binas.ws;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.jws.WebService;
@@ -17,12 +16,6 @@ import org.binas.domain.exception.NoBinaAvailException;
 import org.binas.domain.exception.NoBinaRentedException;
 import org.binas.domain.exception.NoCreditException;
 import org.binas.domain.exception.UserNotExistsException;
-import org.binas.station.ws.cli.StationClient;
-import org.binas.station.ws.cli.StationClientException;
-
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 @WebService(
 endpointInterface = "org.binas.ws.BinasPortType",
@@ -42,8 +35,8 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
-
-		return BinasManager.getInstance().listStations(numberOfStations, coordinates);
+		
+		return BinasManager.getInstance().listStations(numberOfStations, coordinates, endpointManager.getStationClients().values());
     }
 
 	@Override
@@ -122,30 +115,7 @@ public class BinasPortImpl implements BinasPortType {
     /** Test related methods */
     @Override
     public String testPing(String inputMessage){
-    	String result = "";
-    	try {
-			System.out.printf("Contacting UDDI \n");
-			UDDINaming uddiNaming = endpointManager.getUddiNaming();
-
-			System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), "T07_Station%");
-			Collection<UDDIRecord> endpointAddress = uddiNaming.listRecords("T07_Station%");
-
-			if (endpointAddress.isEmpty()) {
-				System.out.println("Not found!");
-				return"";
-			} else {
-				for(UDDIRecord r : endpointAddress) {
-					System.out.printf("Found %s%n", r.toString());
-					try {
-						StationClient sc = new StationClient(r.getUrl());
-						result += sc.testPing(inputMessage)+";\n";
-					} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
-				}
-				
-			}
-		}catch(UDDINamingException e){System.out.printf("UDDINamingException");}
-    	
-    	return result;
+    	return BinasManager.getInstance().testPing(inputMessage, endpointManager.getStationClients().values());
     }
 
 	/** Delete all users and stations. */
@@ -156,34 +126,12 @@ public class BinasPortImpl implements BinasPortType {
 
     @Override
     public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInit_Exception{
-
-        String result = "";
-        try {
-            System.out.printf("Contacting UDDI \n");
-            UDDINaming uddiNaming = endpointManager.getUddiNaming();
-
-            System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), stationId);
-            String endpointAddress = uddiNaming.lookup(stationId);
-
-            if (endpointAddress == null) {
-                System.out.println("Not found!");
-
-            } else {
-
-                StationClient sc = new StationClient(endpointManager.getWsURL(), stationId);
-                try {
-					BinasManager.getInstance().testInitStation(endpointManager.getStationClientById(stationId), x, y, capacity, returnPrize);
-				} catch (InvalidStationException e) {
-					System.out.printf("Station %s%n not found. Moving on...", stationId);
-				}
-            }
-
-        } catch(UDDINamingException e){
-            System.out.printf("UDDINamingException");
-        } catch (StationClientException e) {
-            System.out.println(e.getMessage());
-        } catch (BadInitException e) {
+    	try {
+    		BinasManager.getInstance().testInitStation(endpointManager.getStationClientById(stationId), x, y, capacity, returnPrize);
+	    } catch (BadInitException e) {
         	throwBadInit(e.getMessage());
+		} catch (InvalidStationException e) {
+			System.out.printf("Station %s%n not found. Moving on...", stationId);
 		}
     }
 
@@ -191,7 +139,7 @@ public class BinasPortImpl implements BinasPortType {
     public void testInit(int userInitialPoints) throws BadInit_Exception {
 
 		try {
-			BinasManager.getInstance().testInit();
+			BinasManager.getInstance().testInit(userInitialPoints);
 		}
 
 		catch (BadInitException e) {
