@@ -193,10 +193,16 @@ public class BinasManager {
 
 	public void reset() {
 
+		BinasUser.getEmails().clear();
 		users.clear();
 	}
 
 	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInitException {
+
+		if(x < 0 || y < 0 || capacity <= 0 || returnPrize < 0)
+			throw new BadInitException();
+		if(x > 100 || y > 100)
+			throw new BadInitException();
 
 		StationClient client = stationClients.get(stationId);
 
@@ -213,11 +219,18 @@ public class BinasManager {
 		stationViews.put(newStationView.getId(), newStationView);
 	}
 
-	public void testInit() throws BadInitException {
+	public void testInit(int userInitialPoints) throws BadInitException {
+
+		if (userInitialPoints < 0 ) {
+
+			throw new BadInitException("Credit must be non negative");
+		}
 
 		BinasUser user = null;
 		try {
 			user = activateUser("david@tecnico.pt");
+
+			user.setCredit(userInitialPoints);
 		} catch (EmailExistsException e) {
 			throw new BadInitException(e.getMessage());
 		} catch (InvalidEmailException e) {

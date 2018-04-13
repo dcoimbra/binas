@@ -2,10 +2,20 @@ package org.binas.ws.it;
 
 import org.binas.ws.EmailExists_Exception;
 import org.binas.ws.InvalidEmail_Exception;
+import org.binas.ws.UserNotExists_Exception;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.junit.Assert;
 
 public class ActivateUserIT extends BaseIT{
+
+    @Test
+    public void success() throws EmailExists_Exception, InvalidEmail_Exception, UserNotExists_Exception {
+
+        client.activateUser("david@tecnico.pt");
+
+        Assert.assertEquals(10, client.getCredit("david@tecnico.pt"));
+    }
 
     @Test(expected = EmailExists_Exception.class)
     public void activateUserDuplicateTest() throws EmailExists_Exception, InvalidEmail_Exception {
@@ -20,7 +30,6 @@ public class ActivateUserIT extends BaseIT{
         String email = "";
 
         client.activateUser(email);
-
     }
 
     @Test(expected = InvalidEmail_Exception.class)

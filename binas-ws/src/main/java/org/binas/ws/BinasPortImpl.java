@@ -165,7 +165,7 @@ public class BinasPortImpl implements BinasPortType {
     	return result;
     }
 
-	/** Delete all users and stations. */
+	/** Delete all users. */
     @Override
     public void testClear(){
 		BinasManager.getInstance().reset();
@@ -206,7 +206,7 @@ public class BinasPortImpl implements BinasPortType {
     public void testInit(int userInitialPoints) throws BadInit_Exception {
 
 		try {
-			BinasManager.getInstance().testInit();
+			BinasManager.getInstance().testInit(userInitialPoints);
 		}
 
 		catch (BadInitException e) {
