@@ -31,7 +31,6 @@ public class ReturnBinaIT extends BaseIT{
 
     @Test(expected = UserNotExists_Exception.class)
     public void userNotExists() throws NoBinaAvail_Exception, NoCredit_Exception, InvalidStation_Exception, AlreadyHasBina_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception {
-        
         client.returnBina(STATION_ID1, "teste@binas");
     }
 
