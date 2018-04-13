@@ -79,6 +79,7 @@ public class BinasPortImpl implements BinasPortType {
 
     @Override
     public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
+    	initStations();
     	try{
     		BinasManager.getInstance().rentBina(stationId, email);
     	} catch (UserNotExistsException e) {
@@ -96,6 +97,7 @@ public class BinasPortImpl implements BinasPortType {
 
     @Override
     public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception{
+    	initStations();
     	try {
 			BinasManager.getInstance().returnBina(stationId, email);
 		} catch (UserNotExistsException e) {
@@ -108,7 +110,35 @@ public class BinasPortImpl implements BinasPortType {
 			System.out.printf("Station %s%n not found. Moving on...", stationId);
 		}
     }
+    
+    private void initStations() {
+    	if(BinasManager.getInstance().isInitStationClients())
+    		return;
+    	try {
+			System.out.printf(" --- Binas-ws: Initializing stations --- \nContacting UDDI \n");
+			UDDINaming uddiNaming = endpointManager.getUddiNaming();
 
+			System.out.printf("Looking for '%s'%n", endpointManager.getWsName(), "T07_Station%");
+			Collection<UDDIRecord> endpointAddress = uddiNaming.listRecords("T07_Station%");
+			System.out.println("listed records\n");
+			if (endpointAddress.isEmpty()) {
+				System.out.println("Not found!");
+				return;
+			} else {
+				for(UDDIRecord r : endpointAddress) {
+					System.out.printf("Found %s%n", r.toString());
+					try {
+						StationClient sc = new StationClient(r.getUrl());
+						System.out.println("Adding StationCliend with name "+sc.getInfo().getId()+" to BinasManager\n");
+						BinasManager.getInstance().addStationClient(sc);
+					} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
+				}
+			}
+		}catch(UDDINamingException e){System.out.printf("\n====== UDDINamingException ======\n");}
+    	System.out.println("finished fetching stations. Moving on!\n");
+    }
+
+    /** Test related methods */
     @Override
     public String testPing(String inputMessage){
     	String result = "";

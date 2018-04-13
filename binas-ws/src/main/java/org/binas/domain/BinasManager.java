@@ -72,12 +72,15 @@ public class BinasManager {
 	}
 	
 	private StationClient getStationClientById(String stationId) throws InvalidStationException {
-		Map<String, StationClient> stationClients = new HashMap<>();
 		StationClient sc = stationClients.get(stationId);
 		if(sc == null){
 			throw new InvalidStationException("Station doesn't exist");
 		}
-		return null;
+		return sc;
+	}
+	
+	public boolean isInitStationClients() {
+		return !stationClients.isEmpty();
 	}
 
 	private BinasUser getUser(String email) throws UserNotExistsException {
