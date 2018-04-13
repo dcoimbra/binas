@@ -1,6 +1,7 @@
 package org.binas.domain;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,6 @@ import org.binas.ws.StationView;
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static Map<String, StationView> stationViews = new HashMap<>();
 
 
 
@@ -105,7 +105,8 @@ public class BinasManager {
 		if( !match.find() ){
 			throw new InvalidEmailException("Email is invalid");
 		}
-		else if(!BinasUser.getEmails().add(email)){
+		
+		if(users.containsKey(email)){
 			throw new EmailExistsException("Email already exists");
 		}
 
@@ -127,13 +128,13 @@ public class BinasManager {
 		return view;
 	}
 
-	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
+	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
 		Map<Integer, List<StationView>> distances = new TreeMap<>();
 		Integer x1 = coordinates.getX();
 		Integer y1 = coordinates.getY();
 
-		for (StationView station : stationViews.values()) {
+		for (StationView station : getStationViews(stationClients)) {
 
 			CoordinatesView c = station.getCoordinate();
 			Integer x2 = c.getX();
@@ -168,7 +169,7 @@ public class BinasManager {
 			for(StationView view : entry.getValue()){
 				stationViewList.add(view);
 
-				if(stationViews.size() == numberOfStations){
+				if(stationViewList.size() == numberOfStations){
 					return stationViewList;
 				}
 
@@ -184,9 +185,12 @@ public class BinasManager {
 		users.put(user.getEmail(), user);
 	}
 
-	public void addStationView(StationView station) {
-
-		stationViews.put(station.getId(), station);
+	public List<StationView> getStationViews(Collection<StationClient> stationClients) {
+		List<StationView> stationViews = new ArrayList<>();
+		for(StationClient sc : stationClients) {
+			stationViews.add(buildStationView(sc.getInfo()));
+		}
+		return stationViews;
 	}
 
 	public void reset() {
@@ -201,12 +205,6 @@ public class BinasManager {
 		} catch (BadInit_Exception e) {
 			throw new BadInitException(e.getMessage());
 		}
-
-		org.binas.station.ws.StationView oldStationView = client.getInfo();
-
-		org.binas.ws.StationView newStationView = buildStationView(oldStationView);
-
-		stationViews.put(newStationView.getId(), newStationView);
 	}
 
 	public void testInit() throws BadInitException {
