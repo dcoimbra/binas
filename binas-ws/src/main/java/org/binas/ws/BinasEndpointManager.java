@@ -175,6 +175,7 @@ public class BinasEndpointManager {
     	return stationClients;
     }
     
+    /** returns a StationClient entity given it's station ID*/
     public StationClient getStationClientById(String stationId) throws InvalidStationException {
     	StationClient sc = getStationClients().get(stationId);
 		if(sc == null)
@@ -183,6 +184,7 @@ public class BinasEndpointManager {
 		return sc;
     }
     
+    /** resets all station entities to default values */
     public void testClearStationClients() {
     	for(StationClient sc : getStationClients().values()) {
     		sc.testClear();
