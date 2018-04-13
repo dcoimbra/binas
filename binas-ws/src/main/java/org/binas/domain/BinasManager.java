@@ -37,6 +37,8 @@ public class BinasManager {
 		return getUser(email).getCredit();
 	}
 
+	/** rents a bicicle for the given user at a given station 
+	 * by asking said station to release one bicile if conditions are met*/
 	public synchronized void rentBina(StationClient station, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
@@ -54,6 +56,8 @@ public class BinasManager {
 		
 	}
 	
+	/** returns a bicicle from the given user at a given station 
+	 * by asking said station to accept a bicile if conditions are met*/
 	public synchronized void returnBina(StationClient station, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
@@ -69,7 +73,7 @@ public class BinasManager {
 		}
 	}
 	
-
+	/** returns a binas user given his registered e-mail address*/
 	private synchronized BinasUser getUser(String email) throws UserNotExistsException {
 		if(email == null || email.equals(""))
 			throw new UserNotExistsException("No user referred");
@@ -79,13 +83,14 @@ public class BinasManager {
 		return user;
 	}
 
+	/** activates a binas user by registering his e-mail address*/
 	public synchronized BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
 
 		if(email == null){
 			throw new InvalidEmailException("Email is invalid");
 		}
 
-		if( !email.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(\\.[a-zA-Z]+)?")){
+		if( !email.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?")){
 			throw new InvalidEmailException("Email is invalid");
 		}
 		
@@ -100,6 +105,8 @@ public class BinasManager {
 
 	}
 
+	/**returns a StationView object given a Station Client entity
+	 * containing all the info on said station until this moment*/
 	public synchronized StationView getInfoStation(StationClient station) throws InvalidStationException {
 
 		StationView view = buildStationView(station.getInfo());
@@ -110,7 +117,9 @@ public class BinasManager {
 
 		return view;
 	}
-
+	
+	/** returns a list with the k closest stations ordered by distence 
+	 * with k being the number os stations to present */
 	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
 		if(!checkArguments(numberOfStations, coordinates)){
@@ -147,6 +156,7 @@ public class BinasManager {
 		}
 	}
 
+	/** auxiliary methos for listStations: checks arguments validity*/
 	private boolean checkArguments(Integer numberOfStations, CoordinatesView coordinates) {
 
 		int x = coordinates.getX();
@@ -155,6 +165,8 @@ public class BinasManager {
 		return ((0 <= x && x <= 99) && (0<= y && y <=99) && numberOfStations > 0);
 	}
 
+	/** auxiliary methos for listStations: orders k stations by distance
+	 * from closest to furthest*/
 	private List<StationView> ascendingStationViews(Integer numberOfStations, Map<Integer, List<StationView>> distances) {
 
 		List<StationView> stationViewList = new ArrayList<>();
@@ -175,11 +187,13 @@ public class BinasManager {
 		return stationViewList;
 	}
 
+	/** adds a pair e-mail address/user to the map of registered e-mails and users*/
 	public void addUser(BinasUser user) {
 
 		users.put(user.getEmail(), user);
 	}
 
+	/** returns a list of stationViews given a collection of stationClients */
 	public synchronized List<StationView> getStationViews(Collection<StationClient> stationClients) {
 		List<StationView> stationViews = new ArrayList<>();
 		for(StationClient sc : stationClients) {

@@ -51,7 +51,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 	}
 
-
+	/* validates wether a Station_id has the expected format */
 	private void checkValidStationId(String stationId) throws InvalidStation_Exception {
 		 if(stationId == null || stationId == "" ) {
 			 throwInvalidStation("No station referred");
@@ -121,7 +121,7 @@ public class BinasPortImpl implements BinasPortType {
 		} catch (FullStationException e) {
 			throwFullStation(e.getMessage());
 		} catch (InvalidStationException e) {
-			System.out.printf("Station %s%n not found. Moving on...", stationId);
+			System.out.printf("Station %s not found. Moving on...", stationId);
 		}
     }
 
@@ -147,7 +147,7 @@ public class BinasPortImpl implements BinasPortType {
 	    } catch (BadInitException e) {
         	throwBadInit(e.getMessage());
 		} catch (InvalidStationException e) {
-			System.out.printf("Station %s%n not found. Moving on...", stationId);
+			System.out.printf("Station %s not found. Moving on...", stationId);
 		}
     }
 
