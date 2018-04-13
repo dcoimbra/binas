@@ -33,6 +33,7 @@ public class BinasManager {
 		return SingletonHolder.INSTANCE;
 	}
 
+	/** returns the available credit of the user associated to the given email*/
 	public synchronized int getCredit(String email) throws UserNotExistsException {
 		return getUser(email).getCredit();
 	}
@@ -193,10 +194,11 @@ public class BinasManager {
 
 	/** Delete all users.*/
 	public void reset() {
-
 		users.clear();
+		BinasUser.setinitVal(10);
 	}
 	
+    // Test methods ---------------------------------------------------------------------------
 	/** Test related methods */
 	
 	public String testPing(String inputMessage, Collection<StationClient> stationClients) {
@@ -231,16 +233,7 @@ public class BinasManager {
 			throw new BadInitException("Credit must be non negative");
 		}
 
-		BinasUser user = null;
-		try {
-			user = activateUser("david@tecnico.pt");
-
-			user.setCredit(userInitialPoints);
-		} catch (EmailExistsException e) {
-			throw new BadInitException(e.getMessage());
-		} catch (InvalidEmailException e) {
-			throw new BadInitException(e.getMessage());
-		}
+		BinasUser.setinitVal(userInitialPoints);
 	}
 
 	/** Helper to build a Binas StationView from a Station StationView. */

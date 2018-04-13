@@ -1,18 +1,22 @@
 package org.binas.domain;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class BinasUser {
 	
 	private final String email;
 	private String password;
 	private int credit;
 	private boolean withBina;
+	
+	private static AtomicInteger initVal = new AtomicInteger(10);
 
 	
 	protected BinasUser(String email, String password) {
 		this.email = email;
 		this.password = password;
 
-		setCredit(10);
+		setCredit(initVal.get());
 	}
 	
 	public void changeCredit(int credit) {
@@ -20,6 +24,10 @@ public class BinasUser {
 	}
 	
 	//getters and setters
+	public static void setinitVal(int initVal) {
+		BinasUser.initVal = new AtomicInteger(initVal);
+	}
+	
 	public String getEmail() {
 		return email;
 	}
