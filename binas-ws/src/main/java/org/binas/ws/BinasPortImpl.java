@@ -129,13 +129,11 @@ public class BinasPortImpl implements BinasPortType {
 					System.out.printf("Found %s%n", r.toString());
 					try {
 						StationClient sc = new StationClient(r.getUrl());
-						System.out.println("Adding StationCliend with name "+sc.getInfo().getId()+" to BinasManager\n");
 						BinasManager.getInstance().addStationClient(sc);
 					} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
 				}
 			}
-		}catch(UDDINamingException e){System.out.printf("\n====== UDDINamingException ======\n");}
-    	System.out.println("finished fetching stations. Moving on!\n");
+		}catch(UDDINamingException e){System.out.printf("UDDINamingException\n");}
     }
 
     /** Test related methods */
