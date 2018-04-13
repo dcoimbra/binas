@@ -49,7 +49,7 @@ public class BinasManager {
 			user.setWithBina(true);
 			user.setCredit(old_credit - 1);
 		} catch (NoBinaAvail_Exception e) {
-			throw new NoBinaAvailException("No bicicles available");
+			throw new NoBinaAvailException("No bicycles available");
 		}
 		
 	}
@@ -58,7 +58,7 @@ public class BinasManager {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
 		if(!user.isWithBina()) {
-			throw new NoBinaRentedException("User currently has no bicicle");
+			throw new NoBinaRentedException("User currently has no bicycle");
 		}
 		try {
 			int bonus = station.returnBina();
@@ -192,6 +192,7 @@ public class BinasManager {
 	public void reset() {
 		users.clear();
 		BinasUser.setinitVal(10);
+
 	}
 	
     // Test methods ---------------------------------------------------------------------------

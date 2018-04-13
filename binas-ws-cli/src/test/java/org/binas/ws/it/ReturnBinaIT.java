@@ -9,10 +9,7 @@ import org.binas.ws.NoBinaAvail_Exception;
 import org.binas.ws.NoBinaRented_Exception;
 import org.binas.ws.NoCredit_Exception;
 import org.binas.ws.UserNotExists_Exception;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 public class ReturnBinaIT extends BaseIT{
 
@@ -30,6 +27,24 @@ public class ReturnBinaIT extends BaseIT{
         int totalReturns = client.getInfoStation(STATION_ID1).getTotalReturns();
         client.returnBina(STATION_ID1, EMAIL_DAVID);
         Assert.assertEquals(totalReturns+1, client.getInfoStation(STATION_ID1).getTotalReturns());
+    }
+
+    @Test(expected = UserNotExists_Exception.class)
+    public void userNotExists() throws NoBinaAvail_Exception, NoCredit_Exception, InvalidStation_Exception, AlreadyHasBina_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception {
+        
+        client.returnBina(STATION_ID1, "teste@binas");
+    }
+
+    @Test(expected = NoBinaRented_Exception.class)
+    public void noBinaRented() throws UserNotExists_Exception, InvalidStation_Exception, NoBinaRented_Exception, FullStation_Exception {
+
+        client.returnBina(STATION_ID1, EMAIL_DAVID);
+    }
+
+    @Test(expected = FullStation_Exception.class)
+    public void fullStation() throws NoBinaAvail_Exception, NoCredit_Exception, InvalidStation_Exception, AlreadyHasBina_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception {
+        client.rentBina(STATION_ID1, EMAIL_DAVID);
+        client.returnBina(STATION_ID2, EMAIL_DAVID);
     }
 
     @Test(expected = InvalidStation_Exception.class)
