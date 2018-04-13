@@ -83,7 +83,7 @@ public class BinasManager {
 			throw new InvalidEmailException("Email is invalid");
 		}
 
-		Pattern p = Pattern.compile("[a-z0-9]+@[a-z0-9]+\\.[a-z]+");
+		Pattern p = Pattern.compile("[a-z0-9]+@[a-z0-9]+|\\.[a-z]+");
 		Matcher match = p.matcher(email);
 
 		if( !match.find() ){
@@ -114,34 +114,46 @@ public class BinasManager {
 
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
-		Map<Integer, List<StationView>> distances = new TreeMap<>();
-		Integer x1 = coordinates.getX();
-		Integer y1 = coordinates.getY();
-
-		for (StationView station : getStationViews(stationClients)) {
-
-			CoordinatesView c = station.getCoordinate();
-			Integer x2 = c.getX();
-			Integer y2 = c.getY();
-
-			int x = (int) Math.pow(Math.abs(x1 - x2), 2);
-			int y = (int) Math.pow(Math.abs(y1 - y2), 2);
-			int hipoQuadrada = x + y;
-
-			if(distances.containsKey(hipoQuadrada)){
-				distances.get(hipoQuadrada).add(station);
-			}
-			else{
-				List<StationView> list = new ArrayList<>();
-				list.add(station);
-
-				distances.put(hipoQuadrada, list);
-
-			}
+		if(!checkArguments(numberOfStations, coordinates)){
+			return new ArrayList<>();
 		}
+		else{
+			Map<Integer, List<StationView>> distances = new TreeMap<>();
+			Integer x1 = coordinates.getX();
+			Integer y1 = coordinates.getY();
 
-		return ascendingStationViews(numberOfStations, distances);
+			for (StationView station : getStationViews(stationClients)) {
 
+				CoordinatesView c = station.getCoordinate();
+				Integer x2 = c.getX();
+				Integer y2 = c.getY();
+
+				int x = (int) Math.pow(Math.abs(x1 - x2), 2);
+				int y = (int) Math.pow(Math.abs(y1 - y2), 2);
+				int hipoQuadrada = x + y;
+
+				if(distances.containsKey(hipoQuadrada)){
+					distances.get(hipoQuadrada).add(station);
+				}
+				else{
+					List<StationView> list = new ArrayList<>();
+					list.add(station);
+
+					distances.put(hipoQuadrada, list);
+
+				}
+			}
+
+			return ascendingStationViews(numberOfStations, distances);
+		}
+	}
+
+	private boolean checkArguments(Integer numberOfStations, CoordinatesView coordinates) {
+
+		int x = coordinates.getX();
+		int y = coordinates.getY();
+
+		return ((0 <= x && x <= 99) && (0<= y && y <=99) && numberOfStations > 0);
 	}
 
 	private List<StationView> ascendingStationViews(Integer numberOfStations, Map<Integer, List<StationView>> distances) {
