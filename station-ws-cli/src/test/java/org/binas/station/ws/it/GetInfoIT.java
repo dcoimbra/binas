@@ -22,12 +22,17 @@ public class GetInfoIT extends BaseIT {
 
 
 	@Test
-	public void getInfoEmptyTest() throws BadInit_Exception {
-		client.testInit(10, 10, 20, 0);
+	public void getInfoSuccessTest() throws BadInit_Exception {
+		client.testInit(22, 7, 6, 2);
 		Assert.assertNotNull(client.getInfo());
+		Assert.assertEquals(6, client.getInfo().getAvailableBinas());
+		Assert.assertEquals(0, client.getInfo().getFreeDocks());
+		Assert.assertEquals(22, client.getInfo().getCoordinate().getX());
+		Assert.assertEquals(7, client.getInfo().getCoordinate().getY());
 	}
 	
-
+	/** Test cases from WebServices lab
+	 *  test right initialization values */
 	@Test(expected = BadInit_Exception.class)
 	public void negativeCoord() throws BadInit_Exception {
 		client.testInit(-10, -20, 5, 0);
