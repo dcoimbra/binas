@@ -1,14 +1,20 @@
 package org.binas.ws;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.ws.Endpoint;
 
-import org.binas.station.ws.StationPortType;
+import org.binas.domain.BinasManager;
+import org.binas.domain.exception.InvalidStationException;
+import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.cli.StationClientException;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 public class BinasEndpointManager {
 
@@ -148,4 +154,32 @@ public class BinasEndpointManager {
 	}
 	
 
+	private static Map<String, StationClient> stationClients = null;
+    public Map<String, StationClient> getStationClients() {
+    	try {
+    		if(stationClients == null) {
+    			stationClients = new HashMap<>();
+    			System.out.printf("Looking for '%s'%n", wsName, "T07_Station%");
+				Collection<UDDIRecord> endpointAddress = uddiNaming.listRecords("T07_Station%");
+				System.out.println("listed records\n");
+				for(UDDIRecord r : endpointAddress) {
+						System.out.printf("Found %s%n", r.toString());
+					try {
+						StationClient sc = new StationClient(r.getUrl());
+						stationClients.put(sc.getInfo().getId(), sc);
+					} catch (StationClientException e) {e.printStackTrace(); System.out.println(e.getMessage());}
+				}
+    		}
+		}catch (UDDINamingException e) {System.out.printf("UDDINamingException\n");}
+    	
+    	return stationClients;
+    }
+    
+    public StationClient getStationClientById(String stationId) throws InvalidStationException {
+    	StationClient sc = getStationClients().get(stationId);
+		if(sc == null)
+			throw new InvalidStationException("Station doesn't exist");
+		
+		return sc;
+    }
 }
