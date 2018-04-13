@@ -1,11 +1,11 @@
 package org.binas.ws.it;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.binas.ws.cli.BinasClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import java.io.IOException;
+import java.util.Properties;
 
 
 /*
@@ -22,6 +22,11 @@ public class BaseIT {
 	protected final static String STATION_ID1 = "T07_Station1";
 	protected final static String STATION_ID2 = "T07_Station2";
 	protected final static String STATION_ID3 = "T07_Station3";
+	protected final static String STATION_ID4 = "T07_Station4";
+	protected final static String STATION_ID5 = "T07_Station5";
+	protected final static String STATION_ID6 = "T07_Station6";
+	protected final static String STATION_ID7 = "T07_Station7";
+	protected final static String STATION_ID8 = "T07_Station8";
 	protected final static String EMAIL_DAVID = "david@tecnico.pt";
 
 	@BeforeClass
