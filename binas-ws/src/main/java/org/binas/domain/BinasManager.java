@@ -71,6 +71,8 @@ public class BinasManager {
 	
 
 	private BinasUser getUser(String email) throws UserNotExistsException {
+		if(email == null || email.isEmpty())
+			throw new UserNotExistsException("No user referred");
 		BinasUser user = users.get(email);
 		if (user == null)
 			throw new UserNotExistsException("User doesn't exist");
