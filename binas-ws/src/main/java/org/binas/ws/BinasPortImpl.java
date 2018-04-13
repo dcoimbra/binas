@@ -139,7 +139,7 @@ public class BinasPortImpl implements BinasPortType {
     public void testInit(int userInitialPoints) throws BadInit_Exception {
 
 		try {
-			BinasManager.getInstance().testInit(userInitialPoints);
+			BinasManager.getInstance().testInit();
 		}
 
 		catch (BadInitException e) {
