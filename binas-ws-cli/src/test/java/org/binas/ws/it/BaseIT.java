@@ -18,6 +18,10 @@ public class BaseIT {
 	protected static Properties testProps;
 
 	protected static BinasClient client;
+	
+	protected final static String STATION_ID1 = "T07_Station1";
+	protected final static String STATION_ID2 = "T07_Station2";
+	protected final static String STATION_ID3 = "T07_Station3";
 
 	@BeforeClass
 	public static void oneTimeSetup() throws Exception {
