@@ -153,6 +153,7 @@ public class BinasEndpointManager {
 	}
 	
 
+	/** Returns Map of StationClients and their IDs as key */
 	private static Map<String, StationClient> stationClients = null;
     public Map<String, StationClient> getStationClients() {
     	try {

@@ -42,6 +42,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
 		try {
+			checkValidStationId(stationId);
 			return BinasManager.getInstance().getInfoStation(endpointManager.getStationClientById(stationId));
 
 		}catch(InvalidStationException e){
@@ -50,6 +51,16 @@ public class BinasPortImpl implements BinasPortType {
 		}
 	}
 
+
+	private void checkValidStationId(String stationId) throws InvalidStation_Exception {
+		 if(stationId == null || stationId == "" ) {
+			 throwInvalidStation("No station referred");
+		 }
+		 if(!stationId.matches("T07_Station[1-9]+")) {
+			 throwInvalidStation("Illegal station name - must follow T07_Station$");
+		 }
+		
+	}
 
 	@Override
     public int getCredit(String email) throws UserNotExists_Exception{
@@ -82,6 +93,7 @@ public class BinasPortImpl implements BinasPortType {
     @Override
     public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
     	try{
+    		checkValidStationId(stationId);
     		BinasManager.getInstance().rentBina(endpointManager.getStationClientById(stationId), email);
     		
     	} catch (UserNotExistsException e) {
@@ -100,6 +112,7 @@ public class BinasPortImpl implements BinasPortType {
     @Override
     public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception{
     	try {
+    		checkValidStationId(stationId);
 			BinasManager.getInstance().returnBina(endpointManager.getStationClientById(stationId), email);
 		} catch (UserNotExistsException e) {
 			throwUserNotExists(e.getMessage());
@@ -112,18 +125,20 @@ public class BinasPortImpl implements BinasPortType {
 		}
     }
 
-    /** Test related methods */
-    @Override
-    public String testPing(String inputMessage){
-    	return BinasManager.getInstance().testPing(inputMessage, endpointManager.getStationClients().values());
-    }
-
 	/** Delete all users. */
     @Override
     public void testClear(){
 		BinasManager.getInstance().reset();
     }
-
+    
+    
+    // Test methods ---------------------------------------------------------------------------
+    /** Test related methods */
+    @Override
+    public String testPing(String inputMessage){
+    	return BinasManager.getInstance().testPing(inputMessage, endpointManager.getStationClients().values());
+    }
+    
     @Override
     public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize) throws BadInit_Exception{
     	try {
@@ -147,6 +162,16 @@ public class BinasPortImpl implements BinasPortType {
 		}
 	}
 
+	// View Helpers ---------------------------------------------------------------------------
+	private UserView buildUserView(BinasUser user) {
+		UserView view = new UserView();
+		view.setEmail(user.getEmail());
+		view.setHasBina(user.isWithBina());
+		view.setCredit(user.getCredit());
+
+		return view;
+	}
+	
     // Exceptions Helpers ---------------------------------------------------------------------------
     
 	 /** Helper to throw a new BadInit exception. */
@@ -219,16 +244,4 @@ public class BinasPortImpl implements BinasPortType {
 		 throw new FullStation_Exception(message, faultInfo);
 	 }
 	
-//    FullStation_Exception
-
-
-	//View Helpers
-	private UserView buildUserView(BinasUser user) {
-		UserView view = new UserView();
-		view.setEmail(user.getEmail());
-		view.setHasBina(user.isWithBina());
-		view.setCredit(user.getCredit());
-
-		return view;
-	}
 }
