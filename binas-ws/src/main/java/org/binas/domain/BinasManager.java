@@ -37,8 +37,8 @@ public class BinasManager {
 		return getUser(email).getCredit();
 	}
 
-	/** rents a bicicle for the given user at a given station 
-	 * by asking said station to release one bicile if conditions are met*/
+	/** rents a bicycle for the given user at a given station 
+	 * by asking said station to release one bicycle if conditions are met*/
 	public synchronized void rentBina(StationClient station, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
@@ -56,8 +56,8 @@ public class BinasManager {
 		
 	}
 	
-	/** returns a bicicle from the given user at a given station 
-	 * by asking said station to accept a bicile if conditions are met*/
+	/** returns a bicycle from the given user at a given station 
+	 * by asking said station to accept a bicycle if conditions are met*/
 	public synchronized void returnBina(StationClient station, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
 		BinasUser user = getUser(email);
 		int old_credit = user.getCredit();
@@ -73,7 +73,7 @@ public class BinasManager {
 		}
 	}
 	
-	/** returns a binas user given his registered e-mail address*/
+	/** returns a binas' user given his registered e-mail address*/
 	private synchronized BinasUser getUser(String email) throws UserNotExistsException {
 		if(email == null || email.equals(""))
 			throw new UserNotExistsException("No user referred");
@@ -83,8 +83,8 @@ public class BinasManager {
 		return user;
 	}
 
-	/** activates a binas user by registering his e-mail address*/
-	public synchronized BinasUser activateUser(String email) throws EmailExistsException, InvalidEmailException {
+	/** activates a binas' user by registering his e-mail address*/
+	public synchronized BinasUser activateUser(String email, Collection<StationClient> stationClients) throws EmailExistsException, InvalidEmailException {
 
 		if(email == null){
 			throw new InvalidEmailException("Email is invalid");
@@ -133,8 +133,8 @@ public class BinasManager {
 		return view;
 	}
 	
-	/** returns a list with the k closest stations ordered by distence 
-	 * with k being the number os stations to present */
+	/** returns a list with the k closest stations ordered by distance 
+	 * with k being the number of stations to present */
 	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
 		if(!checkArguments(numberOfStations, coordinates)){
@@ -171,7 +171,7 @@ public class BinasManager {
 		}
 	}
 
-	/** auxiliary methos for listStations: checks arguments validity*/
+	/** auxiliary method for listStations: checks arguments validity*/
 	private boolean checkArguments(Integer numberOfStations, CoordinatesView coordinates) {
 
 		int x = coordinates.getX();
@@ -180,8 +180,8 @@ public class BinasManager {
 		return ((0 <= x && x <= 99) && (0<= y && y <=99) && numberOfStations > 0);
 	}
 
-	/** auxiliary methos for listStations: orders k stations by distance
-	 * from closest to furthest*/
+	/** auxiliary method for listStations: orders k stations by distance value
+	 * from from largest to smallest*/
 	private List<StationView> ascendingStationViews(Integer numberOfStations, Map<Integer, List<StationView>> distances) {
 
 		List<StationView> stationViewList = new ArrayList<>();
@@ -202,7 +202,7 @@ public class BinasManager {
 		return stationViewList;
 	}
 
-	/** adds a pair e-mail address/user to the map of registered e-mails and users*/
+	/** adds a e-mail address/user pair to the map of registered users*/
 	public void addUser(BinasUser user) {
 
 		users.put(user.getEmail(), user);
@@ -238,12 +238,6 @@ public class BinasManager {
 
 	public synchronized void testInitStation(StationClient client, int x, int y, int capacity, int returnPrize) throws BadInitException {
 
-		if(x < 0 || y < 0 || capacity <= 0 || returnPrize < 0)
-			throw new BadInitException();
-		if(x > 100 || y > 100)
-			throw new BadInitException();
-
-		
 		try {
 			client.testInit(x, y, capacity, returnPrize);
 		} catch (org.binas.station.ws.BadInit_Exception e) {
@@ -282,4 +276,11 @@ public class BinasManager {
 		newView.setY(view.getY());
 		return newView;
 	}
+	
+//	private UserView buildClientView(UserView view) {
+//		UserView newView = new UserView();
+//		newView.setBalance(view.getBalance());
+//		newView.setTag(view.getTag());
+//		return newView;
+//	}
 }

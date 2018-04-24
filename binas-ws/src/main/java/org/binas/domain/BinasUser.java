@@ -25,7 +25,7 @@ public class BinasUser {
 	
 	//getters and setters
 	public static void setinitVal(int initVal) {
-		BinasUser.initVal = new AtomicInteger(initVal);
+		BinasUser.initVal.set(initVal);
 	}
 	
 	public String getEmail() {

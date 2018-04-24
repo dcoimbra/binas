@@ -42,7 +42,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 	}
 
-	/* validates wether a Station_id has the expected format */
+	/* validates whether a Station_id has the expected format */
 	private void checkValidStationId(String stationId) throws InvalidStation_Exception {
 		 if(stationId == null || stationId == "" ) {
 			 throwInvalidStation("No station referred");
