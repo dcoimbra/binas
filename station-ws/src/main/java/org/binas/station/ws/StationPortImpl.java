@@ -15,7 +15,7 @@ import org.binas.station.domain.exception.NoSlotAvailException;
 
  @WebService(
  endpointInterface = "org.binas.station.ws.StationPortType",
- wsdlLocation = "station.1_0.wsdl",
+ wsdlLocation = "station.2_0.wsdl",
  name ="StationWebService",
  portName = "StationPort",
  targetNamespace="http://ws.station.binas.org/",
@@ -103,6 +103,28 @@ public class StationPortImpl implements StationPortType {
 		 }
 	 }
 
+	 /** Get a user's balance. */ 
+	@Override
+	public UserView getBalance(String email) {
+		Station station = Station.getInstance();
+		return station.getUserView(email);
+
+	}
+
+	/** Set a user's balance. */
+	@Override
+	public void setBalance(String email, int balance, String tag) {
+		Station station = Station.getInstance();
+		
+			UserView user = station.getUserView(email);
+			if(user == null) {
+				station.addNewUserView(email, buildClientView(balance, tag));
+			} else {
+				user.setBalance(balance);
+				user.setTag(tag);
+			}
+	}
+		
 	// View helpers ----------------------------------------------------------
 
 	 /** Helper to convert a domain station to a view. */
@@ -125,6 +147,13 @@ public class StationPortImpl implements StationPortType {
 		 view.setY(coordinates.getY());
 		 return view;
 	 }
+	 
+		private UserView buildClientView(int balance, String tag) {
+		UserView view = new UserView();
+		view.setBalance(balance);
+		view.setTag(tag);
+		return view;
+	}
 
 	// Exception helpers -----------------------------------------------------
 
