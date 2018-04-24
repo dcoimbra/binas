@@ -98,13 +98,28 @@ public class BinasManager {
 			throw new EmailExistsException("Email already exists");
 		}
 
+		for(StationClient sc : stationClients) {	 // verifies if the email is already registered in a station
+			if(sc.getBalance(email) != null) {
+				throw new EmailExistsException("Email already exists");
+			}
+		}
+		
 		BinasUser user = new BinasUser(email, "pass");
 		addUser(user);
+		
+		String tag = newTag();
+		for(StationClient sc : stationClients) {	//registers the new user on every station with a new tag
+			sc.setBalance(email, user.getCredit(), tag);
+		}
 
 		return user;
 
 	}
 
+	private String newTag() {
+		return new Date().toString();
+	}
+	
 	/**returns a StationView object given a Station Client entity
 	 * containing all the info on said station until this moment*/
 	public synchronized StationView getInfoStation(StationClient station) throws InvalidStationException {
