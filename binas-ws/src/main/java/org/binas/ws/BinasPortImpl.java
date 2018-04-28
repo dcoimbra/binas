@@ -6,16 +6,7 @@ import javax.jws.WebService;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.BinasUser;
-import org.binas.domain.exception.AlreadyHasBinaException;
-import org.binas.domain.exception.BadInitException;
-import org.binas.domain.exception.EmailExistsException;
-import org.binas.domain.exception.FullStationException;
-import org.binas.domain.exception.InvalidEmailException;
-import org.binas.domain.exception.InvalidStationException;
-import org.binas.domain.exception.NoBinaAvailException;
-import org.binas.domain.exception.NoBinaRentedException;
-import org.binas.domain.exception.NoCreditException;
-import org.binas.domain.exception.UserNotExistsException;
+import org.binas.domain.exception.*;
 
 @WebService(
 endpointInterface = "org.binas.ws.BinasPortType",
@@ -33,6 +24,10 @@ public class BinasPortImpl implements BinasPortType {
     	this.endpointManager = binasEndpointManager;
 	}
 
+    public String getBinasWsID() {
+    	return endpointManager.getWsName();
+    }
+    
 	@Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 		
@@ -51,7 +46,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 	}
 
-	/* validates wether a Station_id has the expected format */
+	/* validates whether a Station_id has the expected format */
 	private void checkValidStationId(String stationId) throws InvalidStation_Exception {
 		 if(stationId == null || stationId == "" ) {
 			 throwInvalidStation("No station referred");
@@ -77,7 +72,7 @@ public class BinasPortImpl implements BinasPortType {
     public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
 		try {
 
-			BinasUser user = BinasManager.getInstance().activateUser(email);
+			BinasUser user = BinasManager.getInstance().activateUser(email, endpointManager.getStationClients().values());
 
 			return buildUserView(user);
 

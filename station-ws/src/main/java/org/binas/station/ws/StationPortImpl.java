@@ -15,7 +15,7 @@ import org.binas.station.domain.exception.NoSlotAvailException;
 
  @WebService(
  endpointInterface = "org.binas.station.ws.StationPortType",
- wsdlLocation = "station.1_0.wsdl",
+ wsdlLocation = "station.2_0.wsdl",
  name ="StationWebService",
  portName = "StationPort",
  targetNamespace="http://ws.station.binas.org/",
@@ -103,6 +103,28 @@ public class StationPortImpl implements StationPortType {
 		 }
 	 }
 
+	 /** Get a user's balance. */ 
+	@Override
+	public synchronized ValTagPair getBalance(String email) {
+		Station station = Station.getInstance();
+		return station.getValTagPair(email);
+
+	}
+
+	/** Set a user's balance. */
+	@Override
+	public synchronized void setBalance(String email, int balance, String tag) {
+		Station station = Station.getInstance();
+		
+			ValTagPair valTag = station.getValTagPair(email);
+			if(valTag == null) {												//verifica se o par <valor, tag> ja' existe para aquele email
+				station.addValTagPair(email, buildValTagPair(balance, tag));	//se nao existir, cria um novo
+			} else {
+				valTag.setBalance(balance);			//caso contrario actualiza os valores do par ja' existente
+				valTag.setTag(tag);
+			}
+	}
+		
 	// View helpers ----------------------------------------------------------
 
 	 /** Helper to convert a domain station to a view. */
@@ -125,6 +147,13 @@ public class StationPortImpl implements StationPortType {
 		 view.setY(coordinates.getY());
 		 return view;
 	 }
+	 
+		private ValTagPair buildValTagPair(int balance, String tag) {
+			ValTagPair view = new ValTagPair();
+			view.setBalance(balance);
+			view.setTag(tag);
+		return view;
+	}
 
 	// Exception helpers -----------------------------------------------------
 
