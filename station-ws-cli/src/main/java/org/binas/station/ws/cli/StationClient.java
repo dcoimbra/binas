@@ -118,16 +118,7 @@ public class StationClient implements StationPortType {
 		 return port.returnBina();
 	 }
 	 
-	@Override
-	public UserView getBalance(String email) {
-		return port.getBalance(email);
-	}
-
-	@Override
-	public void setBalance(String email, int balance, String tag) {
-		port.setBalance(email, balance, tag);
-		
-	}
+	
 
 	// test control operations ------------------------------------------------
 
@@ -146,5 +137,16 @@ public class StationClient implements StationPortType {
 	 BadInit_Exception {
 		 port.testInit(x, y, capacity, returnPrize);
 	 }
+
+	@Override
+	public ValTagPair getBalance(String email) {
+		return port.getBalance(email);
+	}
+
+	@Override
+	public void setBalance(String email, int balance, String tag) {
+		port.setBalance(email, balance, tag);
+		
+	}
 
 }

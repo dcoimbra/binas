@@ -105,23 +105,23 @@ public class StationPortImpl implements StationPortType {
 
 	 /** Get a user's balance. */ 
 	@Override
-	public UserView getBalance(String email) {
+	public synchronized ValTagPair getBalance(String email) {
 		Station station = Station.getInstance();
-		return station.getUserView(email);
+		return station.getValTagPair(email);
 
 	}
 
 	/** Set a user's balance. */
 	@Override
-	public void setBalance(String email, int balance, String tag) {
+	public synchronized void setBalance(String email, int balance, String tag) {
 		Station station = Station.getInstance();
 		
-			UserView user = station.getUserView(email);
-			if(user == null) {
-				station.addNewUserView(email, buildClientView(balance, tag));
+			ValTagPair valTag = station.getValTagPair(email);
+			if(valTag == null) {												//verifica se o par <valor, tag> ja' existe para aquele email
+				station.addValTagPair(email, buildValTagPair(balance, tag));	//se nao existir, cria um novo
 			} else {
-				user.setBalance(balance);
-				user.setTag(tag);
+				valTag.setBalance(balance);			//caso contrario actualiza os valores do par ja' existente
+				valTag.setTag(tag);
 			}
 	}
 		
@@ -148,10 +148,10 @@ public class StationPortImpl implements StationPortType {
 		 return view;
 	 }
 	 
-		private UserView buildClientView(int balance, String tag) {
-		UserView view = new UserView();
-		view.setBalance(balance);
-		view.setTag(tag);
+		private ValTagPair buildValTagPair(int balance, String tag) {
+			ValTagPair view = new ValTagPair();
+			view.setBalance(balance);
+			view.setTag(tag);
 		return view;
 	}
 

@@ -3,7 +3,7 @@ package org.binas.station.domain;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
-import org.binas.station.ws.UserView;
+import org.binas.station.ws.ValTagPair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /** Domain Root. */
 public class Station {
 	
-	Map<String, UserView> userViews = new HashMap<>();
+	Map<String, ValTagPair> valTagPairs = new HashMap<>();//map que guarda os pares <valor, tag> associados a cada user
 	
 	/** Creates and returns default coordinates. */
 	private static final Coordinates DEFAULT_COORDINATES = new Coordinates(5, 5);
@@ -138,18 +138,15 @@ public class Station {
     public synchronized int getAvailableBinas() {
     	return maxCapacity - freeDocks.get();
     }
+
+	public synchronized ValTagPair getValTagPair(String email) {
+		return valTagPairs.get(email);
+	}
+
+	public synchronized void addValTagPair(String email, ValTagPair valTagPair) {
+		valTagPairs.put(email, valTagPair);
+	}
     
-	public Map<String, UserView> getUserViewsMap() {
-		return userViews;
-	}
 	
-	public UserView getUserView(String email) {
-		UserView user = userViews.get(email);
-		return user;
-	}
-	
-	public void addNewUserView(String email, UserView userView) {
-		userViews.put(email, userView);
-	}
     	
 }
