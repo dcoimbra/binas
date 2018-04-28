@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static AtomicInteger seq = new AtomicInteger(1); // sequence value used in the Tag
+	private static AtomicInteger seq = new AtomicInteger(0); // sequence value used in the Tag
 
 //	private static AtomicInteger initVal = new AtomicInteger(10);  //value to be used to set a user's initial credit
 
@@ -122,34 +122,42 @@ public class BinasManager {
 		
 		for(StationClient sc : stationClients) {
 			
-			ValTagPair valTagPair = sc.getBalance(email);	
-			if (valTagPair != null) { 										
-				maxValTagPair = compareTags(maxValTagPair, valTagPair);		// if the value stored in that station is greater 
-			}																// than the maxVal, then that <val,tag> is 
-		}																	// the new <maxVal, tag>.
-		return maxValTagPair;	 //returns null if there is no user registered with that email
+			maxValTagPair = compareTags(maxValTagPair, sc.getBalance(email)); // if the value stored in that station is greater 
+																			  // than the maxVal, then that <val,tag> is 
+		}																	  // the new <maxVal, tag>.
+		return maxValTagPair;			  //returns null if there is no user registered with that email
 	}
 	
 	
 	/** writes a new <val, maxTag> in the X replicas  */
 	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients) {
-		String newtag = updateTag();
+		ValTagPair maxValTagPair = getBalance(email, stationClients);
 		
-		for(StationClient sc : stationClients) {	//registers the new user on every station with a new tag
+		//if there is no client registered with that email, a new tag is created; else the maxTag found is updated
+		String newtag = ( maxValTagPair == null ? seq.incrementAndGet() + ":" + "T07_Binas" : updateTag(maxValTagPair.getTag()) );
+		
+		for(StationClient sc : stationClients) {
 			
 			sc.setBalance(email, balance, newtag);
 		}
 	}
 	
 	
-	/** updates the tag value by incrementing the seq part of the tag 
-	 * */
-	private static String updateTag() {
-		return seq.incrementAndGet() + ":" + "T07_Binas"; //TODO add ws.name to tag - implement getter?
+	/** updates a tag value by incrementing the seq part of that tag */
+	private String updateTag(String tag) {
+		String seq = tag.split(":")[0];		//selects the seq part of the given tag
+		int seqNum = Integer.valueOf(seq);
+		
+		return ++seqNum + ":"+ tag.split(":")[1];
 	}
 	
 	/**returns the <val,tag> corresponding to the maxTag between two tags */
 	private static ValTagPair compareTags(ValTagPair valTag1, ValTagPair valTag2) {
+		if(valTag1 == null)
+			return valTag2;
+		if(valTag2 == null)
+			return valTag1;						//if any of the <val,tag> is null, it returns the other one
+		
 		String tag1 = valTag1.getTag();			
 		String tag2 = valTag2.getTag();			// keep tags only
 		
