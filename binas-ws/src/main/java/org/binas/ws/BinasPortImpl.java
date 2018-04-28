@@ -24,6 +24,10 @@ public class BinasPortImpl implements BinasPortType {
     	this.endpointManager = binasEndpointManager;
 	}
 
+    public String getBinasWsID() {
+    	return endpointManager.getWsName();
+    }
+    
 	@Override
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 		

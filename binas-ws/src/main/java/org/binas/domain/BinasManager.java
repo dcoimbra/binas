@@ -8,11 +8,12 @@ import org.binas.ws.CoordinatesView;
 import org.binas.ws.StationView;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-
+	private static AtomicInteger seq = new AtomicInteger(1); //tag seq value
 
 
 	// Singleton -------------------------------------------------------------
@@ -116,8 +117,8 @@ public class BinasManager {
 
 	}
 
-	private String newTag() {
-		return new Date().toString();
+	private static String newTag() {
+		return seq.incrementAndGet() + ":" + "T07_Binas"; //TODO add ws.name to tag - implement getter?
 	}
 	
 	/**returns a StationView object given a Station Client entity
@@ -277,10 +278,4 @@ public class BinasManager {
 		return newView;
 	}
 	
-//	private UserView buildClientView(UserView view) {
-//		UserView newView = new UserView();
-//		newView.setBalance(view.getBalance());
-//		newView.setTag(view.getTag());
-//		return newView;
-//	}
 }
