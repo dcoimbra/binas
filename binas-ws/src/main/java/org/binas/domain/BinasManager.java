@@ -3,6 +3,7 @@ package org.binas.domain;
 import org.binas.domain.exception.*;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
+import org.binas.station.ws.ValTagPair;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.CoordinatesView;
 import org.binas.ws.StationView;
@@ -13,8 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static AtomicInteger seq = new AtomicInteger(1); //tag seq value
+	private static AtomicInteger seq = new AtomicInteger(1); // sequence value used in the Tag
 
+//	private static AtomicInteger initVal = new AtomicInteger(10);  //value to be used to set a user's initial credit
 
 	// Singleton -------------------------------------------------------------
 
@@ -99,26 +101,74 @@ public class BinasManager {
 			throw new EmailExistsException("Email already exists");
 		}
 
-		for(StationClient sc : stationClients) {	 // verifies if the email is already registered in a station
-			if(sc.getBalance(email) != null) {
-				throw new EmailExistsException("Email already exists");
-			}
+		 // verifies if the email is already registered in a station
+		if(getBalance(email, stationClients) != null) {
+			throw new EmailExistsException("Email already exists");
 		}
 		
 		BinasUser user = new BinasUser(email, "pass");
 		addUser(user);
 		
-		String tag = newTag();
-		for(StationClient sc : stationClients) {	//registers the new user on every station with a new tag
-			sc.setBalance(email, user.getCredit(), tag);
-		}
+		setBalance(user.getEmail(), user.getCredit(), stationClients);  //registers the new user in the replicas
 
 		return user;
 
 	}
 
-	private static String newTag() {
+	/** returns the <val,tag> corresponding to the maxTag stored in X replicas */
+	private synchronized ValTagPair getBalance(String email, Collection<StationClient> stationClients) {
+		
+		ValTagPair maxValTagPair = null;
+		
+		for(StationClient sc : stationClients) {
+			
+			ValTagPair valTagPair = sc.getBalance(email);	
+			if (valTagPair != null) { 										
+				maxValTagPair = compareTags(maxValTagPair, valTagPair);		// if the value stored in that station is greater 
+			}																// than the maxVal, then that <val,tag> is 
+		}																	// the new <maxVal, tag>.
+		return maxValTagPair;	 //returns null if there is no user registered with that email
+	}
+	
+	
+	/** writes a new <val, maxTag> in the X replicas  */
+	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients) {
+		String newtag = updateTag();
+		
+		for(StationClient sc : stationClients) {	//registers the new user on every station with a new tag
+			
+			sc.setBalance(email, balance, newtag);
+		}
+	}
+	
+	
+	/** updates the tag value by incrementing the seq part of the tag 
+	 * */
+	private static String updateTag() {
 		return seq.incrementAndGet() + ":" + "T07_Binas"; //TODO add ws.name to tag - implement getter?
+	}
+	
+	/**returns the <val,tag> corresponding to the maxTag between two tags */
+	private static ValTagPair compareTags(ValTagPair valTag1, ValTagPair valTag2) {
+		String tag1 = valTag1.getTag();			
+		String tag2 = valTag2.getTag();			// keep tags only
+		
+		String[] tag1parts = tag1.split(":");  // separate seq from cid part in tags
+		String seq1 = tag1parts[0];
+		String cid1 = tag1parts[1];
+		
+		String[] tag2parts = tag2.split(":");
+		String seq2 = tag2parts[0];
+		String cid2 = tag2parts[1];
+		
+		int compareSeq = seq1.compareTo(seq2);	// compare sequence part of tags
+		
+		if(compareSeq == 0) {
+			int compareCid = cid1.compareTo(cid2); 	//if seqs are equal, compare cid part of tags
+			
+			return (compareCid > 0 ? valTag2 : valTag1);
+		}
+		return (compareSeq > 0 ? valTag2 : valTag1);  // returns the valTag pair corresponding to maxTag
 	}
 	
 	/**returns a StationView object given a Station Client entity
