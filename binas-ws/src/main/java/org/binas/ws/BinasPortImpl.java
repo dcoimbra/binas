@@ -163,7 +163,11 @@ public class BinasPortImpl implements BinasPortType {
 		UserView view = new UserView();
 		view.setEmail(user.getEmail());
 		view.setHasBina(user.isWithBina());
-		view.setCredit(user.getCredit());
+		try {
+			view.setCredit(BinasManager.getInstance().getCredit(user.getEmail(), endpointManager.getStationClients().values()));
+		} catch (UserNotExistsException e) {
+			e.printStackTrace();
+		}
 
 		return view;
 	}

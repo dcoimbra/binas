@@ -22,7 +22,7 @@ public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
 
-//	private static AtomicInteger initVal = new AtomicInteger(10);  //value to be used to set a user's initial credit
+	private static AtomicInteger initVal = new AtomicInteger(10);
 
 	// Singleton -------------------------------------------------------------
 
@@ -47,13 +47,18 @@ public class BinasManager {
 	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
 		getUser(email);
 		ValTagPair vtp = getBalance(email, stationClients);
-		if (vtp == null)
+		if (vtp == null) {
 			try {
 				throw new Exception("something went wrong :(");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
 		return vtp.getBalance();
+	}
+
+	public static void setinitVal(int initVal) {
+		BinasManager.initVal.set(initVal);
 	}
 
 	/** rents a bicycle for the given user at a given station 
@@ -131,7 +136,7 @@ public class BinasManager {
 		BinasUser user = new BinasUser(email, "pass");
 		addUser(user);
 									//initVal.get() TODO pass initVal variable to BinasManager instead of BinasUser
-		setBalance(user.getEmail(), user.getCredit(), stationClients, "0:T07_Binas");  //registers the new user in the replicas
+		setBalance(user.getEmail(), initVal.get(), stationClients, "0:T07_Binas");  //registers the new user in the replicas
 
 		return user;
 
@@ -373,7 +378,7 @@ public class BinasManager {
 	/** Delete all users.*/
 	public void reset() {
 		users.clear();
-		BinasUser.setinitVal(10);
+		setinitVal(10);
 
 	}
 	
@@ -406,7 +411,7 @@ public class BinasManager {
 			throw new BadInitException("Credit must be non negative");
 		}
 
-		BinasUser.setinitVal(userInitialPoints);
+		setinitVal(userInitialPoints);
 	}
 
 	/** Helper to build a Binas StationView from a Station StationView. */
