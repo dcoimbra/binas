@@ -146,6 +146,7 @@ public class Station {
 	}
 
 	public synchronized void addValTagPair(String email, ValTagPair valTagPair) {
+		System.out.println(" -> added new user: "+ email+" to station "+getId());
 		valTagPairs.put(email, valTagPair);
 	}
     
