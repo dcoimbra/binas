@@ -35,24 +35,35 @@ public class BinasManager {
 		return SingletonHolder.INSTANCE;
 	}
 
-	/** returns the available credit of the user associated to the given email*/
-	public synchronized int getCredit(String email) throws UserNotExistsException {
-		return getUser(email).getCredit();
+	/** returns the available credit of the user associated to the given email
+	 * @throws UserNotExistsException 
+	 * @throws Exception */
+	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
+		getUser(email);
+		ValTagPair vtp = getBalance(email, stationClients);
+		if (vtp == null)
+			try {
+				throw new Exception("something went wrong :(");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		return vtp.getBalance();
 	}
 
 	/** rents a bicycle for the given user at a given station 
 	 * by asking said station to release one bicycle if conditions are met*/
-	public synchronized void rentBina(StationClient station, String email) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
+	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
 		BinasUser user = getUser(email);
-		int old_credit = user.getCredit();
-		if ( old_credit < 1)
-			throw new NoCreditException("No credit available");
 		if(user.isWithBina())
 			throw new AlreadyHasBinaException("User already has Bina");
+		
 		try {
+			int old_credit = getBalance(email, stationClients).getBalance(); //user.getCredit();
+			if ( old_credit < 1)
+				throw new NoCreditException("No credit available");
 			station.getBina();
 			user.setWithBina(true);
-			user.setCredit(old_credit - 1);
+			setBalance(email, old_credit-1, stationClients);//user.setCredit(old_credit - 1);
 		} catch (NoBinaAvail_Exception e) {
 			throw new NoBinaAvailException("No bicycles available");
 		}
@@ -61,16 +72,18 @@ public class BinasManager {
 	
 	/** returns a bicycle from the given user at a given station 
 	 * by asking said station to accept a bicycle if conditions are met*/
-	public synchronized void returnBina(StationClient station, String email) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
+	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
 		BinasUser user = getUser(email);
-		int old_credit = user.getCredit();
+		
 		if(!user.isWithBina()) {
 			throw new NoBinaRentedException("User currently has no bicycle");
 		}
 		try {
+			int old_credit = getBalance(email, stationClients).getBalance();//user.getCredit();
 			int bonus = station.returnBina();
 			user.setWithBina(false);
-			user.setCredit(old_credit+bonus);
+			if(bonus != 0)
+				setBalance(email, old_credit+bonus, stationClients);//user.setCredit(old_credit+bonus);
 		} catch (NoSlotAvail_Exception e) {
 			throw new FullStationException("Station is full");
 		}
