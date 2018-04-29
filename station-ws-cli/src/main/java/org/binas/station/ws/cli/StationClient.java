@@ -4,8 +4,11 @@ import org.binas.station.ws.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Response;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
@@ -107,18 +110,47 @@ public class StationClient implements StationPortType {
 	 public StationView getInfo() {
 		 return port.getInfo();
 	 }
-	
-	 @Override
+
+	@Override
+	public Response<GetBinaResponse> getBinaAsync() {
+		return port.getBinaAsync();
+	}
+
+	@Override
+	public Future<?> getBinaAsync(AsyncHandler<GetBinaResponse> asyncHandler) {
+		return port.getBinaAsync(asyncHandler);
+	}
+
+	@Override
 	 public void getBina() throws NoBinaAvail_Exception {
 		 port.getBina();
 	 }
-	
-	 @Override
+
+	@Override
+	public Response<ReturnBinaResponse> returnBinaAsync() {
+		return port.returnBinaAsync();
+	}
+
+	@Override
+	public Future<?> returnBinaAsync(AsyncHandler<ReturnBinaResponse> asyncHandler) {
+		return port.returnBinaAsync(asyncHandler);
+	}
+
+	@Override
 	 public int returnBina() throws NoSlotAvail_Exception {
 		 return port.returnBina();
 	 }
-	 
-	
+
+	@Override
+	public Response<TestPingResponse> testPingAsync(String inputMessage) {
+		return port.testPingAsync(inputMessage);
+	}
+
+	@Override
+	public Future<?> testPingAsync(String inputMessage, AsyncHandler<TestPingResponse> asyncHandler) {
+		return port.testPingAsync(inputMessage, asyncHandler);
+	}
+
 
 	// test control operations ------------------------------------------------
 
@@ -126,17 +158,47 @@ public class StationClient implements StationPortType {
 	 public String testPing(String inputMessage) {
 		 return port.testPing(inputMessage);
 	 }
-	
-	 @Override
+
+	@Override
+	public Response<TestClearResponse> testClearAsync() {
+		return port.testClearAsync();
+	}
+
+	@Override
+	public Future<?> testClearAsync(AsyncHandler<TestClearResponse> asyncHandler) {
+		return port.testClearAsync(asyncHandler);
+	}
+
+	@Override
 	 public void testClear() {
 		 port.testClear();
 	 }
-	
-	 @Override
+
+	@Override
+	public Response<TestInitResponse> testInitAsync(int x, int y, int capacity, int returnPrize) {
+		return port.testInitAsync(x, y, capacity, returnPrize);
+	}
+
+	@Override
+	public Future<?> testInitAsync(int x, int y, int capacity, int returnPrize, AsyncHandler<TestInitResponse> asyncHandler) {
+		return port.testInitAsync(x, y, capacity, returnPrize, asyncHandler);
+	}
+
+	@Override
 	 public void testInit(int x, int y, int capacity, int returnPrize) throws
 	 BadInit_Exception {
 		 port.testInit(x, y, capacity, returnPrize);
 	 }
+
+	@Override
+	public Response<GetBalanceResponse> getBalanceAsync(String email) {
+		return port.getBalanceAsync(email);
+	}
+
+	@Override
+	public Future<?> getBalanceAsync(String email, AsyncHandler<GetBalanceResponse> asyncHandler) {
+		return port.getBalanceAsync(email, asyncHandler);
+	}
 
 	@Override
 	public ValTagPair getBalance(String email) {
@@ -144,9 +206,29 @@ public class StationClient implements StationPortType {
 	}
 
 	@Override
+	public Response<SetBalanceResponse> setBalanceAsync(String email, int balance, String tag) {
+		return port.setBalanceAsync(email, balance, tag);
+	}
+
+	@Override
+	public Future<?> setBalanceAsync(String email, int balance, String tag, AsyncHandler<SetBalanceResponse> asyncHandler) {
+		return port.setBalanceAsync(email, balance, tag, asyncHandler);
+	}
+
+	@Override
 	public void setBalance(String email, int balance, String tag) {
 		port.setBalance(email, balance, tag);
 		
+	}
+
+	@Override
+	public Response<GetInfoResponse> getInfoAsync() {
+		return port.getInfoAsync();
+	}
+
+	@Override
+	public Future<?> getInfoAsync(AsyncHandler<GetInfoResponse> asyncHandler) {
+		return port.getInfoAsync(asyncHandler);
 	}
 
 }
