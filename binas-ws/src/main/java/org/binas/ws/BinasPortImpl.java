@@ -60,7 +60,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
     public int getCredit(String email) throws UserNotExists_Exception{
     	try {
-    		return BinasManager.getInstance().getCredit(email);
+    		return BinasManager.getInstance().getCredit(email, endpointManager.getStationClients().values());
     	} catch (UserNotExistsException e) {
     		throwUserNotExists(e.getMessage());
     		return -1;
@@ -89,7 +89,7 @@ public class BinasPortImpl implements BinasPortType {
     public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
     	try{
     		checkValidStationId(stationId);
-    		BinasManager.getInstance().rentBina(endpointManager.getStationClientById(stationId), email);
+    		BinasManager.getInstance().rentBina(endpointManager.getStationClientById(stationId), email, endpointManager.getStationClients().values());
     		
     	} catch (UserNotExistsException e) {
 			throwUserNotExists(e.getMessage());
@@ -108,7 +108,7 @@ public class BinasPortImpl implements BinasPortType {
     public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception{
     	try {
     		checkValidStationId(stationId);
-			BinasManager.getInstance().returnBina(endpointManager.getStationClientById(stationId), email);
+			BinasManager.getInstance().returnBina(endpointManager.getStationClientById(stationId), email, endpointManager.getStationClients().values());
 		} catch (UserNotExistsException e) {
 			throwUserNotExists(e.getMessage());
 		} catch (NoBinaRentedException e) {
@@ -163,7 +163,11 @@ public class BinasPortImpl implements BinasPortType {
 		UserView view = new UserView();
 		view.setEmail(user.getEmail());
 		view.setHasBina(user.isWithBina());
-		view.setCredit(user.getCredit());
+		try {
+			view.setCredit(BinasManager.getInstance().getCredit(user.getEmail(), endpointManager.getStationClients().values()));
+		} catch (UserNotExistsException e) {
+			e.printStackTrace();
+		}
 
 		return view;
 	}

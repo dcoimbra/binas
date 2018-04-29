@@ -1,22 +1,28 @@
 package org.binas.domain;
 
 import org.binas.domain.exception.*;
+import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
+import org.binas.station.ws.SetBalanceResponse;
 import org.binas.station.ws.ValTagPair;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.CoordinatesView;
 import org.binas.ws.StationView;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 
 public class BinasManager {
 	
 	private static Map<String, BinasUser> users = new HashMap<>();
-	private static AtomicInteger seq = new AtomicInteger(0); // sequence value used in the Tag
 
-//	private static AtomicInteger initVal = new AtomicInteger(10);  //value to be used to set a user's initial credit
+	private static AtomicInteger initVal = new AtomicInteger(10);
 
 	// Singleton -------------------------------------------------------------
 
@@ -41,13 +47,18 @@ public class BinasManager {
 	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
 		getUser(email);
 		ValTagPair vtp = getBalance(email, stationClients);
-		if (vtp == null)
+		if (vtp == null) {
 			try {
 				throw new Exception("something went wrong :(");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
 		return vtp.getBalance();
+	}
+
+	public static void setinitVal(int initVal) {
+		BinasManager.initVal.set(initVal);
 	}
 
 	/** rents a bicycle for the given user at a given station 
@@ -58,12 +69,13 @@ public class BinasManager {
 			throw new AlreadyHasBinaException("User already has Bina");
 		
 		try {
-			int old_credit = getBalance(email, stationClients).getBalance(); //user.getCredit();
+			ValTagPair maxValTagPair = getBalance(email, stationClients);
+			int old_credit = maxValTagPair.getBalance(); //user.getCredit();
 			if ( old_credit < 1)
 				throw new NoCreditException("No credit available");
 			station.getBina();
 			user.setWithBina(true);
-			setBalance(email, old_credit-1, stationClients);//user.setCredit(old_credit - 1);
+			setBalance(email, old_credit-1, stationClients, maxValTagPair.getTag());//user.setCredit(old_credit - 1);
 		} catch (NoBinaAvail_Exception e) {
 			throw new NoBinaAvailException("No bicycles available");
 		}
@@ -79,11 +91,12 @@ public class BinasManager {
 			throw new NoBinaRentedException("User currently has no bicycle");
 		}
 		try {
-			int old_credit = getBalance(email, stationClients).getBalance();//user.getCredit();
+			ValTagPair maxValTagPair = getBalance(email, stationClients);
+			int old_credit = maxValTagPair.getBalance();//user.getCredit();
 			int bonus = station.returnBina();
 			user.setWithBina(false);
 			if(bonus != 0)
-				setBalance(email, old_credit+bonus, stationClients);//user.setCredit(old_credit+bonus);
+				setBalance(email, old_credit+bonus, stationClients, maxValTagPair.getTag());//user.setCredit(old_credit+bonus);
 		} catch (NoSlotAvail_Exception e) {
 			throw new FullStationException("Station is full");
 		}
@@ -115,45 +128,119 @@ public class BinasManager {
 		}
 
 		 // verifies if the email is already registered in a station
-		if(getBalance(email, stationClients) != null) {
+		ValTagPair vtp = getBalance(email, stationClients);
+		if(vtp != null) {
 			throw new EmailExistsException("Email already exists");
 		}
 		
 		BinasUser user = new BinasUser(email, "pass");
 		addUser(user);
-		
-		setBalance(user.getEmail(), user.getCredit(), stationClients);  //registers the new user in the replicas
+									//initVal.get() TODO pass initVal variable to BinasManager instead of BinasUser
+		setBalance(user.getEmail(), initVal.get(), stationClients, "0:T07_Binas");  //registers the new user in the replicas
 
 		return user;
 
 	}
 
 	/** returns the <val,tag> corresponding to the maxTag stored in X replicas */
-	private synchronized ValTagPair getBalance(String email, Collection<StationClient> stationClients) {
-		
+	private ValTagPair getBalance(String email, Collection<StationClient> stationClients) {
+				
 		ValTagPair maxValTagPair = null;
+		List<ValTagPair> vtList = new ArrayList<>();
+		
+		int quorum = (stationClients.size()/2)+1;
+		
+		CountDownLatch semaphore = new CountDownLatch(quorum);
 		
 		for(StationClient sc : stationClients) {
-			
-			maxValTagPair = compareTags(maxValTagPair, sc.getBalance(email)); // if the value stored in that station is greater 
-																			  // than the maxVal, then that <val,tag> is 
-		}																	  // the new <maxVal, tag>.
+			sc.getBalanceAsync(email, new AsyncHandler<GetBalanceResponse>() {
+				
+				@Override
+				public  void handleResponse(Response<GetBalanceResponse> res) {
+					try {
+						synchronized (vtList) {
+							if(vtList.size() == quorum) { System.out.println("----/ignoring answers/----"); return;}  //ignores responses when quorum is fulfilled
+							System.out.println("trying to receive <val,tag> from " + Thread.currentThread().getId());
+							vtList.add(res.get().getValTagPair());
+							semaphore.countDown();
+						}
+						
+					} catch (InterruptedException e) {
+		                   System.out.println("Caught interrupted exception.");
+//		                   System.out.print("Cause: ");
+//		                   System.out.println(e.getCause());
+		            } catch (ExecutionException e) {
+		                   System.out.println("Caught execution exception.");
+//		                   System.out.print("Cause: ");
+//		                   System.out.println(e.getCause());
+		            }
+				}
+			});
+		}
+		
+		//Wait Q/2+1 responses
+		try {
+			System.out.println("get: awaiting for quorum...");
+			semaphore.await();
+			System.out.println("get: ...quorum reached! Moving on");
+		} catch (InterruptedException e) {e.printStackTrace();}
+		for(ValTagPair vtp : vtList) {
+			maxValTagPair = compareTags(maxValTagPair, vtp); // if the value stored in that station is greater than the maxVal, then that <val,tag> is the new <maxVal, tag>.
+		}		
+		
 		return maxValTagPair;			  //returns null if there is no user registered with that email
 	}
 	
 	
-	/** writes a new <val, maxTag> in the X replicas  */
-	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients) {
-		ValTagPair maxValTagPair = getBalance(email, stationClients);
+	
+	/** writes <val, new maxTag> in the X station replicas  */
+	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients, String maxTag) {
+		System.out.println("\tstarting set Balance operation:");
 		
-		//if there is no client registered with that email, a new tag is created; else the maxTag found is updated
-		String newtag = ( maxValTagPair == null ? seq.incrementAndGet() + ":" + "T07_Binas" : updateTag(maxValTagPair.getTag()) );
+		String newtag = updateTag(maxTag);
+		
+		int quorum = (stationClients.size()/2)+1;
+		CountDownLatch semaphore = new CountDownLatch(quorum);
 		
 		for(StationClient sc : stationClients) {
 			
-			sc.setBalance(email, balance, newtag);
+			sc.setBalanceAsync(email, balance, newtag, new AsyncHandler<SetBalanceResponse>() {
+				
+				@Override
+				public void handleResponse(Response<SetBalanceResponse> res) {
+					try {
+						res.get();
+						semaphore.countDown();
+					} catch (InterruptedException e) {
+		                   System.out.println("Caught interrupted exception.");
+//		                   System.out.print("Cause: ");
+//		                   System.out.println(e.getCause());
+		            } catch (ExecutionException e) {
+		                   System.out.println("Caught execution exception.");
+//		                   System.out.print("Cause: ");
+//		                   System.out.println(e.getCause());
+		            }
+				}
+			});
 		}
+		
+		//Wait Q/2+1 acknowledges
+		try {
+			System.out.println("set: awaiting for quorum...");
+			semaphore.await();
+			System.out.println("set: ...quorum reached! Moving on");
+		} catch (InterruptedException e) {e.printStackTrace();}
+		
+		System.out.println("\tset Balance operation completed!");
 	}
+	
+	
+	/*
+	 * /** writes a new <val, maxTag> in the X replicas for already existing users 
+	private void setBalance(String email, int balance, Collection<StationClient> stationClients) {
+		ValTagPair maxValTagPair = getBalance(email, stationClients);
+		setBalance(email, balance, stationClients, maxValTagPair.getTag());
+	}*/
 	
 	
 	/** updates a tag value by incrementing the seq part of that tag */
@@ -175,21 +262,20 @@ public class BinasManager {
 		String tag2 = valTag2.getTag();			// keep tags only
 		
 		String[] tag1parts = tag1.split(":");  // separate seq from cid part in tags
-		String seq1 = tag1parts[0];
+		int seq1 = Integer.parseInt(tag1parts[0]);
 		String cid1 = tag1parts[1];
 		
 		String[] tag2parts = tag2.split(":");
-		String seq2 = tag2parts[0];
+		int seq2 = Integer.parseInt(tag2parts[0]);
 		String cid2 = tag2parts[1];
 		
-		int compareSeq = seq1.compareTo(seq2);	// compare sequence part of tags
-		
-		if(compareSeq == 0) {
-			int compareCid = cid1.compareTo(cid2); 	//if seqs are equal, compare cid part of tags
-			
-			return (compareCid > 0 ? valTag2 : valTag1);
+		if(seq1 == seq2) {
+			System.out.println("("+seq1+" == "+seq2+"), returning biggest cid");
+			return (cid1.compareTo(cid2) > 0 ? valTag1 : valTag2); //if seqs are equal, compare cid part of tags
 		}
-		return (compareSeq > 0 ? valTag2 : valTag1);  // returns the valTag pair corresponding to maxTag
+		ValTagPair answer = seq1 > seq2 ? valTag1 : valTag2;
+		System.out.println(seq1+">"+seq2+"?"+answer.getBalance()+" "+answer.getTag());
+		return (answer);  // returns the valTag pair corresponding to maxTag
 	}
 	
 	/**returns a StationView object given a Station Client entity
@@ -292,7 +378,7 @@ public class BinasManager {
 	/** Delete all users.*/
 	public void reset() {
 		users.clear();
-		BinasUser.setinitVal(10);
+		setinitVal(10);
 
 	}
 	
@@ -325,7 +411,7 @@ public class BinasManager {
 			throw new BadInitException("Credit must be non negative");
 		}
 
-		BinasUser.setinitVal(userInitialPoints);
+		setinitVal(userInitialPoints);
 	}
 
 	/** Helper to build a Binas StationView from a Station StationView. */

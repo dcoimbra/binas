@@ -115,13 +115,15 @@ public class StationPortImpl implements StationPortType {
 	@Override
 	public synchronized void setBalance(String email, int balance, String tag) {
 		Station station = Station.getInstance();
-		
+		System.out.println("setting balance of "+balance+" for user "+email+" with tag "+tag);
+			ValTagPair receivedValTagPair = buildValTagPair(balance, tag);
 			ValTagPair valTag = station.getValTagPair(email);
 			if(valTag == null) {												//verifica se o par <valor, tag> ja' existe para aquele email
 				station.addValTagPair(email, buildValTagPair(balance, tag));	//se nao existir, cria um novo
 			} else {
-				valTag.setBalance(balance);			//caso contrario actualiza os valores do par ja' existente
-				valTag.setTag(tag);
+				ValTagPair newValTag = compareTags(valTag, receivedValTagPair);
+				valTag.setBalance(newValTag.getBalance());
+				valTag.setTag(newValTag.getTag());
 			}
 	}
 		
@@ -155,6 +157,32 @@ public class StationPortImpl implements StationPortType {
 		return view;
 	}
 
+		/**returns the <val,tag> corresponding to the maxTag between two tags */
+		private static ValTagPair compareTags(ValTagPair valTag1, ValTagPair valTag2) {
+			if(valTag1 == null)
+				return valTag2;
+			if(valTag2 == null)
+				return valTag1;						//if any of the <val,tag> is null, it returns the other one
+			
+			String tag1 = valTag1.getTag();			
+			String tag2 = valTag2.getTag();			// keep tags only
+			
+			String[] tag1parts = tag1.split(":");  // separate seq from cid part in tags
+			int seq1 = Integer.parseInt(tag1parts[0]);
+			String cid1 = tag1parts[1];
+			
+			String[] tag2parts = tag2.split(":");
+			int seq2 = Integer.parseInt(tag2parts[0]);
+			String cid2 = tag2parts[1];
+			
+			if(seq1 == seq2) {
+				System.out.println("sequences are equal, returning biggest cid");
+				return (cid1.compareTo(cid2) > 0 ? valTag1 : valTag2); //if seqs are equal, compare cid part of tags
+			}
+			ValTagPair answer = seq1 > seq2 ? valTag1 : valTag2;
+			System.out.println(seq1+">"+seq2+"?"+answer.getBalance()+" "+answer.getTag());
+			return (answer);  // returns the valTag pair corresponding to maxTag
+		}
 	// Exception helpers -----------------------------------------------------
 
 	 /** Helper to throw a new NoBinaAvail exception. */
