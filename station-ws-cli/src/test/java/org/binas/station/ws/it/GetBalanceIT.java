@@ -1,6 +1,5 @@
 package org.binas.station.ws.it;
 
-import org.binas.station.ws.InvalidEmail_Exception;
 import org.binas.station.ws.ValTagPair;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,7 +13,7 @@ public class GetBalanceIT extends BaseIT {
     }
 
     @Test
-    public void success() throws InvalidEmail_Exception {
+    public void success(){
         ValTagPair v = client.getBalance(EMAIL_DAVID);
         int balance = v.getBalance();
         String tag = v.getTag();
@@ -24,21 +23,21 @@ public class GetBalanceIT extends BaseIT {
     }
 
     @Test
-    public void nullEmail() throws InvalidEmail_Exception {
+    public void nullEmail(){
         ValTagPair v = client.getBalance("");
 
-
+        Assert.assertNull(v);
     }
 
     @Test
-    public void emptyEmail() throws InvalidEmail_Exception{
+    public void emptyEmail(){
         ValTagPair v = client.getBalance(null);
 
         Assert.assertNull(v);
     }
 
     @Test
-    public void emailDoesNotExist() throws InvalidEmail_Exception{
+    public void emailDoesNotExist(){
         ValTagPair v = client.getBalance("lucia@lucia");
 
         Assert.assertNull(v);
