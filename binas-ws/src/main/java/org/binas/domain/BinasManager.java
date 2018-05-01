@@ -57,7 +57,7 @@ public class BinasManager {
 
 	/** rents a bicycle for the given user at a given station 
 	 * by asking said station to release one bicycle if conditions are met*/
-	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException, InvalidEmailException {
+	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException{
 		BinasUser user = getUser(email, stationClients);
 		if(user.isWithBina())
 			throw new AlreadyHasBinaException("User already has Bina");
@@ -65,11 +65,14 @@ public class BinasManager {
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
 			int old_credit = maxValTagPair.getBalance();
+
 			if ( old_credit < 1)
 				throw new NoCreditException("No credit available");
+
 			station.getBina();
 			user.setWithBina(true);
-			setBalance(email, old_credit-1, stationClients, maxValTagPair.getTag());//user.setCredit(old_credit - 1);
+			setBalance(email, old_credit-1, stationClients, maxValTagPair.getTag());
+
 		} catch (NoBinaAvail_Exception e) {
 			throw new NoBinaAvailException("No bicycles available");
 		}
@@ -78,7 +81,7 @@ public class BinasManager {
 	
 	/** returns a bicycle from the given user at a given station 
 	 * by asking said station to accept a bicycle if conditions are met*/
-	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException, InvalidEmailException {
+	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException{
 		BinasUser user = getUser(email, stationClients);
 		
 		if(!user.isWithBina()) {
@@ -106,17 +109,12 @@ public class BinasManager {
 		
 		if (user == null) {
 			ValTagPair vtp;
-			
-			try {
-				vtp = getBalance(email, stationClients);		//in case binas-ws fails momentarily but the user is still registered in the stations
-				if (vtp == null) {								//this ensures not all user information is lost
-					throw new UserNotExistsException("User doesn't exist");
-				}
-			
-			} catch (InvalidEmailException e) {
+
+			vtp = getBalance(email, stationClients);		//in case binas-ws fails momentarily but the user is still registered in the stations
+			if (vtp == null) {								//this ensures not all user information is lost
 				throw new UserNotExistsException("User doesn't exist");
 			}
-			
+
 			user = new BinasUser(email, "pass"); 
 			addUser(user);
 		}
@@ -149,9 +147,7 @@ public class BinasManager {
 	}
 
 	/** returns the <val,tag> corresponding to the maxTag stored in X replicas */
-	private ValTagPair getBalance(String email, Collection<StationClient> stationClients) throws InvalidEmailException {
-
-		checkEmail(email);
+	private ValTagPair getBalance(String email, Collection<StationClient> stationClients){
 
 		ValTagPair maxValTagPair = null;
 		List<ValTagPair> vtList = new ArrayList<>();
@@ -175,12 +171,12 @@ public class BinasManager {
 						
 					} catch (InterruptedException e) {
 		                   System.out.println("Caught interrupted exception.");
-//		                   System.out.print("Cause: ");
-//		                   System.out.println(e.getCause());
+		                   System.out.print("Cause: ");
+		                   System.out.println(e.getCause());
 		            } catch (ExecutionException e) {
 		                   System.out.println("Caught execution exception.");
-//		                   System.out.print("Cause: ");
-//		                   System.out.println(e.getCause());
+		                   System.out.print("Cause: ");
+		                   System.out.println(e.getCause());
 		            }
 				}
 			});
@@ -222,12 +218,12 @@ public class BinasManager {
 						semaphore.countDown();
 					} catch (InterruptedException e) {
 		                   System.out.println("Caught interrupted exception.");
-//		                   System.out.print("Cause: ");
-//		                   System.out.println(e.getCause());
+		                   System.out.print("Cause: ");
+		                   System.out.println(e.getCause());
 		            } catch (ExecutionException e) {
 		                   System.out.println("Caught execution exception.");
-//		                   System.out.print("Cause: ");
-//		                   System.out.println(e.getCause());
+		                   System.out.print("Cause: ");
+		                   System.out.println(e.getCause());
 		            }
 				}
 			});
