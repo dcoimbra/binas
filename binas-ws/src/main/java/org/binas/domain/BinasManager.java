@@ -40,12 +40,11 @@ public class BinasManager {
 	 * @throws UserNotExistsException 
 	 * @throws InvalidEmailException */
 	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException, InvalidEmailException {
-		getUser(email);
+		getUser(email, stationClients);
 
 		ValTagPair vtp = getBalance(email, stationClients);
 
 		if (vtp == null) {
-
 			throw new InvalidEmailException("Email not properly registered");
 		}
 
@@ -59,7 +58,7 @@ public class BinasManager {
 	/** rents a bicycle for the given user at a given station 
 	 * by asking said station to release one bicycle if conditions are met*/
 	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException, InvalidEmailException {
-		BinasUser user = getUser(email);
+		BinasUser user = getUser(email, stationClients);
 		if(user.isWithBina())
 			throw new AlreadyHasBinaException("User already has Bina");
 		
@@ -80,7 +79,7 @@ public class BinasManager {
 	/** returns a bicycle from the given user at a given station 
 	 * by asking said station to accept a bicycle if conditions are met*/
 	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException, InvalidEmailException {
-		BinasUser user = getUser(email);
+		BinasUser user = getUser(email, stationClients);
 		
 		if(!user.isWithBina()) {
 			throw new NoBinaRentedException("User currently has no bicycle");
@@ -97,13 +96,31 @@ public class BinasManager {
 		}
 	}
 	
-	/** returns a binas' user given his registered e-mail address*/
-	private synchronized BinasUser getUser(String email) throws UserNotExistsException {
+	/** returns a binas' user given his registered e-mail address
+	 * @throws InvalidEmailException */
+	private synchronized BinasUser getUser(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
 		if(email == null || email.equals(""))
 			throw new UserNotExistsException("No user referred");
+		
 		BinasUser user = users.get(email);
-		if (user == null)
-			throw new UserNotExistsException("User doesn't exist");
+		
+		if (user == null) {
+			ValTagPair vtp;
+			
+			try {
+				vtp = getBalance(email, stationClients);		//in case binas-ws fails momentarily but the user is still registered in the stations
+				if (vtp == null) {								//this ensures not all user information is lost
+					throw new UserNotExistsException("User doesn't exist");
+				}
+			
+			} catch (InvalidEmailException e) {
+				throw new UserNotExistsException("User doesn't exist");
+			}
+			
+			user = new BinasUser(email, "pass"); 
+			addUser(user);
+		}
+		
 		return user;
 	}
 
