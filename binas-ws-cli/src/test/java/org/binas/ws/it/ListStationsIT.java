@@ -97,6 +97,12 @@ public class ListStationsIT extends BaseIT {
         assertTrue(list.isEmpty());
     }
 
+    @Test
+    public void nullCoordinates(){
+        List<StationView> list = client.listStations(3, null);
+        assertTrue(list.isEmpty());
+    }
+
 
     @AfterClass
     public static void cleanup() {

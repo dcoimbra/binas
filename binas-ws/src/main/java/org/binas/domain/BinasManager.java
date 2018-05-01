@@ -46,7 +46,7 @@ public class BinasManager {
 
 		if (vtp == null) {
 
-			throw new InvalidEmailException("Invalid email");
+			throw new InvalidEmailException("Email not properly registered");
 		}
 
 		return vtp.getBalance();
@@ -65,7 +65,7 @@ public class BinasManager {
 		
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
-			int old_credit = maxValTagPair.getBalance(); //user.getCredit();
+			int old_credit = maxValTagPair.getBalance();
 			if ( old_credit < 1)
 				throw new NoCreditException("No credit available");
 			station.getBina();
@@ -87,7 +87,7 @@ public class BinasManager {
 		}
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
-			int old_credit = maxValTagPair.getBalance();//user.getCredit();
+			int old_credit = maxValTagPair.getBalance();
 			int bonus = station.returnBina();
 			user.setWithBina(false);
 			if(bonus != 0)
@@ -287,7 +287,7 @@ public class BinasManager {
 	 * with k being the number of stations to present */
 	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
-		if(!checkArguments(numberOfStations, coordinates)){
+		if(coordinates == null || !checkArguments(numberOfStations, coordinates)){
 			return new ArrayList<>();
 		}
 		else{
