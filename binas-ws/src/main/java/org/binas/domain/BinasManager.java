@@ -287,7 +287,7 @@ public class BinasManager {
 	 * with k being the number of stations to present */
 	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
-		if(!checkArguments(numberOfStations, coordinates)){
+		if(coordinates == null || !checkArguments(numberOfStations, coordinates)){
 			return new ArrayList<>();
 		}
 		else{
