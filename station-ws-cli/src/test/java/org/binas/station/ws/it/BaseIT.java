@@ -1,11 +1,11 @@
 package org.binas.station.ws.it;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.binas.station.ws.cli.StationClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Base class for testing a station Load properties from test.properties
@@ -14,6 +14,7 @@ public class BaseIT {
 
 	private static final String TEST_PROP_FILE = "/test.properties";
 	protected static Properties testProps;
+	protected final static String EMAIL_DAVID = "david@tecnico.pt";
 
 	protected static StationClient client;
 

@@ -1,22 +1,17 @@
 package org.binas.domain;
 
 import org.binas.domain.exception.*;
-import org.binas.station.ws.GetBalanceResponse;
-import org.binas.station.ws.NoBinaAvail_Exception;
-import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.SetBalanceResponse;
-import org.binas.station.ws.ValTagPair;
+import org.binas.station.ws.*;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.ws.CoordinatesView;
 import org.binas.ws.StationView;
 
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.xml.ws.AsyncHandler;
-import javax.xml.ws.Response;
 
 public class BinasManager {
 	
@@ -43,17 +38,17 @@ public class BinasManager {
 
 	/** returns the available credit of the user associated to the given email
 	 * @throws UserNotExistsException 
-	 * @throws Exception */
-	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
+	 * @throws InvalidEmailException */
+	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException, InvalidEmailException {
 		getUser(email);
+
 		ValTagPair vtp = getBalance(email, stationClients);
+
 		if (vtp == null) {
-			try {
-				throw new Exception("something went wrong :(");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
+			throw new InvalidEmailException("Email not properly registered");
 		}
+
 		return vtp.getBalance();
 	}
 
@@ -63,14 +58,14 @@ public class BinasManager {
 
 	/** rents a bicycle for the given user at a given station 
 	 * by asking said station to release one bicycle if conditions are met*/
-	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException {
+	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException, InvalidEmailException {
 		BinasUser user = getUser(email);
 		if(user.isWithBina())
 			throw new AlreadyHasBinaException("User already has Bina");
 		
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
-			int old_credit = maxValTagPair.getBalance(); //user.getCredit();
+			int old_credit = maxValTagPair.getBalance();
 			if ( old_credit < 1)
 				throw new NoCreditException("No credit available");
 			station.getBina();
@@ -84,7 +79,7 @@ public class BinasManager {
 	
 	/** returns a bicycle from the given user at a given station 
 	 * by asking said station to accept a bicycle if conditions are met*/
-	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException {
+	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException, InvalidEmailException {
 		BinasUser user = getUser(email);
 		
 		if(!user.isWithBina()) {
@@ -92,7 +87,7 @@ public class BinasManager {
 		}
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
-			int old_credit = maxValTagPair.getBalance();//user.getCredit();
+			int old_credit = maxValTagPair.getBalance();
 			int bonus = station.returnBina();
 			user.setWithBina(false);
 			if(bonus != 0)
@@ -115,13 +110,7 @@ public class BinasManager {
 	/** activates a binas' user by registering his e-mail address*/
 	public synchronized BinasUser activateUser(String email, Collection<StationClient> stationClients) throws EmailExistsException, InvalidEmailException {
 
-		if(email == null){
-			throw new InvalidEmailException("Email is invalid");
-		}
-
-		if( !email.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?")){
-			throw new InvalidEmailException("Email is invalid");
-		}
+		checkEmail(email);
 		
 		if(users.containsKey(email)){
 			throw new EmailExistsException("Email already exists");
@@ -129,13 +118,13 @@ public class BinasManager {
 
 		 // verifies if the email is already registered in a station
 		ValTagPair vtp = getBalance(email, stationClients);
+
 		if(vtp != null) {
 			throw new EmailExistsException("Email already exists");
 		}
 		
 		BinasUser user = new BinasUser(email, "pass");
 		addUser(user);
-									//initVal.get() TODO pass initVal variable to BinasManager instead of BinasUser
 		setBalance(user.getEmail(), initVal.get(), stationClients, "0:T07_Binas");  //registers the new user in the replicas
 
 		return user;
@@ -143,8 +132,10 @@ public class BinasManager {
 	}
 
 	/** returns the <val,tag> corresponding to the maxTag stored in X replicas */
-	private ValTagPair getBalance(String email, Collection<StationClient> stationClients) {
-				
+	private ValTagPair getBalance(String email, Collection<StationClient> stationClients) throws InvalidEmailException {
+
+		checkEmail(email);
+
 		ValTagPair maxValTagPair = null;
 		List<ValTagPair> vtList = new ArrayList<>();
 		
@@ -195,6 +186,7 @@ public class BinasManager {
 	
 	/** writes <val, new maxTag> in the X station replicas  */
 	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients, String maxTag) {
+
 		System.out.println("\tstarting set Balance operation:");
 		
 		String newtag = updateTag(maxTag);
@@ -295,7 +287,7 @@ public class BinasManager {
 	 * with k being the number of stations to present */
 	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
-		if(!checkArguments(numberOfStations, coordinates)){
+		if(coordinates == null || !checkArguments(numberOfStations, coordinates)){
 			return new ArrayList<>();
 		}
 		else{
@@ -329,17 +321,8 @@ public class BinasManager {
 		}
 	}
 
-	/** auxiliary method for listStations: checks arguments validity*/
-	private boolean checkArguments(Integer numberOfStations, CoordinatesView coordinates) {
-
-		int x = coordinates.getX();
-		int y = coordinates.getY();
-
-		return ((0 <= x && x <= 99) && (0<= y && y <=99) && numberOfStations > 0);
-	}
-
 	/** auxiliary method for listStations: orders k stations by distance value
-	 * from from largest to smallest*/
+	 * from from smallest to largest*/
 	private List<StationView> ascendingStationViews(Integer numberOfStations, Map<Integer, List<StationView>> distances) {
 
 		List<StationView> stationViewList = new ArrayList<>();
@@ -380,6 +363,28 @@ public class BinasManager {
 		users.clear();
 		setinitVal(10);
 
+	}
+
+	//Auxiliary Methods -----------------------------------------------------------------------------
+	/** Check Email validity */
+	private void checkEmail(String email) throws InvalidEmailException{
+
+		if(email == null || email.equals("")){
+			throw new InvalidEmailException("Email is invalid");
+		}
+
+		if( !email.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?")){
+			throw new InvalidEmailException("Email is invalid");
+		}
+	}
+
+	/** auxiliary method for listStations: checks arguments validity*/
+	private boolean checkArguments(Integer numberOfStations, CoordinatesView coordinates) {
+
+		int x = coordinates.getX();
+		int y = coordinates.getY();
+
+		return ((0 <= x && x <= 99) && (0<= y && y <=99) && numberOfStations > 0);
 	}
 	
     // Test methods ---------------------------------------------------------------------------

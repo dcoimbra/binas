@@ -130,6 +130,13 @@
             </xs:complexType>
             <xs:element name="UserNotExists" type="tns:UserNotExists" />
 
+            <xs:complexType name="InvalidEmail">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="InvalidEmail" type="tns:InvalidEmail" />
+
             <!-- test control operations data types -->
 
             <xs:complexType name="test_ping">
@@ -226,6 +233,9 @@
     <message name="NoBinaAvail">
         <part name="fault" element="tns:NoBinaAvail" />
     </message>
+    <message name="InvalidEmail">
+        <part name="fault" element="tns:InvalidEmail" />
+    </message>
     
     <!-- test control messages -->
     <message name="test_ping">
@@ -263,6 +273,8 @@
                 message="tns:getBalance" />
             <output wsam:Action="http://ws.station.binas.org/Station/getBalanceResponse"
                 message="tns:getBalanceResponse" />
+            <fault message="tns:InvalidEmail" name="InvalidEmail"
+                   wsam:Action="http://ws.station.binas.org/Station/getBalance/Fault/InvalidEmail" />
         </operation>
         
         <operation name="setBalance">
@@ -336,9 +348,12 @@
             <output>
                 <soap:body use="literal" />
             </output>
+            <fault name="InvalidEmail">
+                <soap:fault name="InvalidEmail" use="literal" />
+            </fault>
         </operation>
-        
-               <operation name="setBalance">
+
+        <operation name="setBalance">
             <soap:operation soapAction="" />
             <input>
                 <soap:body use="literal" />

@@ -201,7 +201,7 @@ public class StationClient implements StationPortType {
 	}
 
 	@Override
-	public ValTagPair getBalance(String email) {
+	public ValTagPair getBalance (String email) throws InvalidEmail_Exception {
 		return port.getBalance(email);
 	}
 

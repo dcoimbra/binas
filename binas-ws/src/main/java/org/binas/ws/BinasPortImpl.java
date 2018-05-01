@@ -48,7 +48,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	/* validates whether a Station_id has the expected format */
 	private void checkValidStationId(String stationId) throws InvalidStation_Exception {
-		 if(stationId == null || stationId == "" ) {
+		 if(stationId == null || stationId.equals("")) {
 			 throwInvalidStation("No station referred");
 		 }
 		 if(!stationId.matches("T07_Station[1-9]+")) {
@@ -58,13 +58,19 @@ public class BinasPortImpl implements BinasPortType {
 	}
 
 	@Override
-    public int getCredit(String email) throws UserNotExists_Exception{
-    	try {
-    		return BinasManager.getInstance().getCredit(email, endpointManager.getStationClients().values());
-    	} catch (UserNotExistsException e) {
-    		throwUserNotExists(e.getMessage());
-    		return -1;
-    	}
+    public int getCredit(String email) throws UserNotExists_Exception {
+
+        try {
+
+            return BinasManager.getInstance().getCredit(email, endpointManager.getStationClients().values());
+
+        } catch (UserNotExistsException e) {
+            throwUserNotExists(e.getMessage());
+            return -1;
+        } catch (InvalidEmailException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
 
@@ -101,11 +107,13 @@ public class BinasPortImpl implements BinasPortType {
 			throwNoBinaAvail(e.getMessage());
 		} catch (InvalidStationException e) {
 			System.out.printf("Station %s%n not found. Moving on...", stationId);
-		} 
+		} catch (InvalidEmailException e){
+			e.printStackTrace();
+		}
     }
 
     @Override
-    public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception{
+    public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
     	try {
     		checkValidStationId(stationId);
 			BinasManager.getInstance().returnBina(endpointManager.getStationClientById(stationId), email, endpointManager.getStationClients().values());
@@ -117,6 +125,8 @@ public class BinasPortImpl implements BinasPortType {
 			throwFullStation(e.getMessage());
 		} catch (InvalidStationException e) {
 			System.out.printf("Station %s not found. Moving on...", stationId);
+		} catch (InvalidEmailException e){
+    		e.printStackTrace();
 		}
     }
 
@@ -159,7 +169,7 @@ public class BinasPortImpl implements BinasPortType {
 	}
 
 	// View Helpers ---------------------------------------------------------------------------
-	private UserView buildUserView(BinasUser user) {
+	private UserView buildUserView(BinasUser user) throws InvalidEmail_Exception {
 		UserView view = new UserView();
 		view.setEmail(user.getEmail());
 		view.setHasBina(user.isWithBina());
@@ -167,6 +177,8 @@ public class BinasPortImpl implements BinasPortType {
 			view.setCredit(BinasManager.getInstance().getCredit(user.getEmail(), endpointManager.getStationClients().values()));
 		} catch (UserNotExistsException e) {
 			e.printStackTrace();
+		}catch(InvalidEmailException e){
+			throwInvalidEmail(e.getMessage());
 		}
 
 		return view;
