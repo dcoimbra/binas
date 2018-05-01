@@ -106,6 +106,7 @@ public class StationPortImpl implements StationPortType {
 	 /** Get a user's balance. */ 
 	@Override
 	public synchronized ValTagPair getBalance(String email) {
+
 		Station station = Station.getInstance();
 		return station.getValTagPair(email);
 
@@ -114,6 +115,11 @@ public class StationPortImpl implements StationPortType {
 	/** Set a user's balance. */
 	@Override
 	public synchronized void setBalance(String email, int balance, String tag) {
+
+		if(balance < 0){
+			return;
+		}
+
 		Station station = Station.getInstance();
 		System.out.println("setting balance of "+balance+" for user "+email+" with tag "+tag);
 			ValTagPair receivedValTagPair = buildValTagPair(balance, tag);

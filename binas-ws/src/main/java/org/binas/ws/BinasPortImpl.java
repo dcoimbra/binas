@@ -107,8 +107,6 @@ public class BinasPortImpl implements BinasPortType {
 			throwNoBinaAvail(e.getMessage());
 		} catch (InvalidStationException e) {
 			System.out.printf("Station %s%n not found. Moving on...", stationId);
-		} catch (InvalidEmailException e){
-			e.printStackTrace();
 		}
     }
 
@@ -125,8 +123,6 @@ public class BinasPortImpl implements BinasPortType {
 			throwFullStation(e.getMessage());
 		} catch (InvalidStationException e) {
 			System.out.printf("Station %s not found. Moving on...", stationId);
-		} catch (InvalidEmailException e){
-    		e.printStackTrace();
 		}
     }
 
