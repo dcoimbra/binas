@@ -65,7 +65,7 @@ public class BinasManager {
 		
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
-			int old_credit = maxValTagPair.getBalance(); //user.getCredit();
+			int old_credit = maxValTagPair.getBalance();
 			if ( old_credit < 1)
 				throw new NoCreditException("No credit available");
 			station.getBina();
@@ -87,7 +87,7 @@ public class BinasManager {
 		}
 		try {
 			ValTagPair maxValTagPair = getBalance(email, stationClients);
-			int old_credit = maxValTagPair.getBalance();//user.getCredit();
+			int old_credit = maxValTagPair.getBalance();
 			int bonus = station.returnBina();
 			user.setWithBina(false);
 			if(bonus != 0)
