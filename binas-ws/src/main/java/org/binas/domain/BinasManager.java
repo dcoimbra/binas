@@ -38,17 +38,17 @@ public class BinasManager {
 
 	/** returns the available credit of the user associated to the given email
 	 * @throws UserNotExistsException 
-	 * @throws Exception */
+	 * @throws InvalidEmailException */
 	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException, InvalidEmailException {
 		getUser(email);
+
 		ValTagPair vtp = getBalance(email, stationClients);
+
 		if (vtp == null) {
-			try {
-				throw new Exception("something went wrong :(");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
+			throw new InvalidEmailException("Email not properly registered");
 		}
+
 		return vtp.getBalance();
 	}
 
