@@ -23,14 +23,18 @@ public class GetBalanceIT extends BaseIT {
         Assert.assertEquals("0:T07_Binas", tag);
     }
 
-    @Test()
+    @Test
     public void nullEmail() throws InvalidEmail_Exception {
-        client.getBalance("");
+        ValTagPair v = client.getBalance("");
+
+
     }
 
     @Test
     public void emptyEmail() throws InvalidEmail_Exception{
-        client.getBalance(null);
+        ValTagPair v = client.getBalance(null);
+
+        Assert.assertNull(v);
     }
 
     @Test
