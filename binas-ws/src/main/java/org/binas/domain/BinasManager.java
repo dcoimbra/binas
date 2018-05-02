@@ -37,7 +37,9 @@ public class BinasManager {
 	}
 
 	/** returns the available credit of the user associated to the given email
-	 * @throws UserNotExistsException 
+	 * @param email of the user
+	 * @param stationClients
+	 * @throws UserNotExistsException
 	 * @throws InvalidEmailException */
 	public synchronized int getCredit(String email, Collection<StationClient> stationClients) throws UserNotExistsException, InvalidEmailException {
 		getUser(email, stationClients);
@@ -51,12 +53,23 @@ public class BinasManager {
 		return vtp.getBalance();
 	}
 
+	/**
+	 * Initializes value for initial user credit
+	 * @param initVal initial user credit
+	 */
 	public static void setinitVal(int initVal) {
 		BinasManager.initVal.set(initVal);
 	}
 
 	/** rents a bicycle for the given user at a given station 
-	 * by asking said station to release one bicycle if conditions are met*/
+	 * by asking said station to release one bicycle if conditions are met
+	 * @param station to rent from
+	 * @param email of the renting user user
+	 * @param stationClients
+	 * @throws NoCreditException
+	 * @throws AlreadyHasBinaException
+	 * @throws UserNotExistsException
+	 * @throws NoBinaAvailException */
 	public synchronized void rentBina(StationClient station, String email, Collection<StationClient> stationClients) throws NoCreditException, AlreadyHasBinaException, UserNotExistsException, InvalidStationException, NoBinaAvailException{
 		BinasUser user = getUser(email, stationClients);
 		if(user.isWithBina())
@@ -80,7 +93,13 @@ public class BinasManager {
 	}
 	
 	/** returns a bicycle from the given user at a given station 
-	 * by asking said station to accept a bicycle if conditions are met*/
+	 * by asking said station to accept a bicycle if conditions are met
+	 * @param station to return Bina
+	 * @param email of the user returning a Bina
+	 * @param stationClients
+	 * @throws UserNotExistsException
+	 * @throws NoBinaRentedException
+	 * @throws FullStationException */
 	public synchronized void returnBina(StationClient station, String email, Collection<StationClient> stationClients) throws UserNotExistsException, NoBinaRentedException, FullStationException, InvalidStationException{
 		BinasUser user = getUser(email, stationClients);
 		
@@ -100,6 +119,9 @@ public class BinasManager {
 	}
 	
 	/** returns a binas' user given his registered e-mail address
+	 * @param email of the user
+	 * @param stationClients
+	 * @return user
 	 * @throws UserNotExistsException */
 	private synchronized BinasUser getUser(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
 		if(email == null || email.equals(""))
@@ -122,7 +144,12 @@ public class BinasManager {
 		return user;
 	}
 
-	/** activates a binas' user by registering his e-mail address*/
+	/** activates a binas' user by registering his e-mail address
+	 * @param email of the user
+	 * @param stationClients
+	 * @return user activated
+	 * @throws EmailExistsException
+	 * @throws InvalidEmailException */
 	public synchronized BinasUser activateUser(String email, Collection<StationClient> stationClients) throws EmailExistsException, InvalidEmailException {
 
 		checkEmail(email);
@@ -146,7 +173,10 @@ public class BinasManager {
 
 	}
 
-	/** returns the <val,tag> corresponding to the maxTag stored in X replicas */
+	/** returns the <val,tag> corresponding to the maxTag stored in X replicas
+	 * @param email of the user
+	 * @param stationClients
+	 * @return vtp the list of values and tags */
 	private ValTagPair getBalance(String email, Collection<StationClient> stationClients){
 
 		ValTagPair maxValTagPair = null;
@@ -195,7 +225,11 @@ public class BinasManager {
 	
 	
 	
-	/** writes <val, new maxTag> in the X station replicas  */
+	/** writes <val, new maxTag> in the X station replicas
+	 * @param email of the user
+	 * @param balance to set
+	 * @param stationClients
+	 * @param maxTag */
 	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients, String maxTag) {
 
 		String newtag = updateTag(maxTag);
@@ -232,7 +266,8 @@ public class BinasManager {
 	}
 	
 	
-	/** updates a tag value by incrementing the seq part of that tag */
+	/** updates a tag value by incrementing the seq part of that tag
+	 * @param tag to update */
 	private String updateTag(String tag) {
 		String seq = tag.split(":")[0];		//selects the seq part of the given tag
 		int seqNum = Integer.valueOf(seq);
@@ -240,7 +275,10 @@ public class BinasManager {
 		return ++seqNum + ":"+ tag.split(":")[1];
 	}
 	
-	/**returns the <val,tag> corresponding to the maxTag between two tags */
+	/**returns the <val,tag> corresponding to the maxTag between two tags
+	 * @param valTag1
+	 * @param valTag2
+	 * @return answer the maximum tag */
 	private static ValTagPair compareTags(ValTagPair valTag1, ValTagPair valTag2) {
 		if(valTag1 == null)
 			return valTag2;
@@ -266,7 +304,10 @@ public class BinasManager {
 	}
 	
 	/**returns a StationView object given a Station Client entity
-	 * containing all the info on said station until this moment*/
+	 * containing all the info on said station until this moment
+	 * @param station to get info from
+	 * @return view corresponding StationView
+	 * @throws InvalidStationException */
 	public synchronized StationView getInfoStation(StationClient station) throws InvalidStationException {
 
 		StationView view = buildStationView(station.getInfo());
@@ -279,7 +320,11 @@ public class BinasManager {
 	}
 	
 	/** returns a list with the k closest stations ordered by distance 
-	 * with k being the number of stations to present */
+	 * with k being the number of stations to present
+	 * @param numberOfStations to list
+	 * @param coordinates
+	 * @param stationClients
+	 * @return list of stations */
 	public synchronized List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates, Collection<StationClient> stationClients) {
 
 		if(coordinates == null || !checkArguments(numberOfStations, coordinates)){
@@ -317,7 +362,10 @@ public class BinasManager {
 	}
 
 	/** auxiliary method for listStations: orders k stations by distance value
-	 * from from smallest to largest*/
+	 * from from smallest to largest
+	 * @param numberOfStations to list
+	 * @param distances
+	 * @return stationViewList ordered list */
 	private List<StationView> ascendingStationViews(Integer numberOfStations, Map<Integer, List<StationView>> distances) {
 
 		List<StationView> stationViewList = new ArrayList<>();
@@ -338,7 +386,8 @@ public class BinasManager {
 		return stationViewList;
 	}
 
-	/** adds a e-mail address/user pair to the map of registered users*/
+	/** adds a e-mail address/user pair to the map of registered users
+	 *@param user to add*/
 	public void addUser(BinasUser user) {
 
 		users.put(user.getEmail(), user);
@@ -361,7 +410,9 @@ public class BinasManager {
 	}
 
 	//Auxiliary Methods -----------------------------------------------------------------------------
-	/** Check Email validity */
+	/** Check Email validity
+	 * @param email to check
+	 * @throws InvalidEmailException */
 	private void checkEmail(String email) throws InvalidEmailException{
 
 		if(email == null || email.equals("")){
@@ -373,7 +424,10 @@ public class BinasManager {
 		}
 	}
 
-	/** auxiliary method for listStations: checks arguments validity*/
+	/** auxiliary method for listStations: checks arguments validity
+	 * @param numberOfStations
+	 * @param coordinates
+	 * @return true if the arguments are valid*/
 	private boolean checkArguments(Integer numberOfStations, CoordinatesView coordinates) {
 
 		int x = coordinates.getX();

@@ -19,7 +19,7 @@ serviceName = "BinasService"
 public class BinasPortImpl implements BinasPortType {
 
 	private BinasEndpointManager endpointManager;
-	
+
     public BinasPortImpl(BinasEndpointManager binasEndpointManager) {
     	this.endpointManager = binasEndpointManager;
 	}
@@ -29,12 +29,22 @@ public class BinasPortImpl implements BinasPortType {
     }
     
 	@Override
+	/** returns a list with the k closest stations ordered by distance
+	 * with k being the number of stations to present
+	 * @param numberOfStations to list
+	 * @param coordinates
+	 * @return list of stations */
     public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates){
 		
 		return BinasManager.getInstance().listStations(numberOfStations, coordinates, endpointManager.getStationClients().values());
     }
 
 	@Override
+	/**returns a StationView object given a Station Client entity
+	 * containing all the info on said station until this moment
+	 * @param stationId to get info from
+	 * @return view corresponding StationView
+	 * @throws InvalidStation_Exception */
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
 		try {
 			checkValidStationId(stationId);
@@ -46,7 +56,12 @@ public class BinasPortImpl implements BinasPortType {
 		}
 	}
 
-	/* validates whether a Station_id has the expected format */
+	/** validates whether a Station_id has the expected format
+	 *
+ 	 * @param stationId to check
+	 * @throws InvalidStation_Exception
+	 */
+
 	private void checkValidStationId(String stationId) throws InvalidStation_Exception {
 		 if(stationId == null || stationId.equals("")) {
 			 throwInvalidStation("No station referred");
@@ -58,6 +73,9 @@ public class BinasPortImpl implements BinasPortType {
 	}
 
 	@Override
+	/** returns the available credit of the user associated to the given email
+	 * @param email of the user
+	 * @throws UserNotExistsException */
     public int getCredit(String email) throws UserNotExists_Exception {
 
         try {
@@ -75,6 +93,11 @@ public class BinasPortImpl implements BinasPortType {
 
 
 	@Override
+	/** activates a binas' user by registering his e-mail address
+	 * @param email of the user
+	 * @return user activated
+	 * @throws EmailExistsException
+	 * @throws InvalidEmailException */
     public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception{
 		try {
 
@@ -92,6 +115,16 @@ public class BinasPortImpl implements BinasPortType {
     }
 
     @Override
+	/** rents a bicycle for the given user at a given station
+	 * by asking said station to release one bicycle if conditions are met
+	 * @param station to rent from
+	 * @param email of the renting user user
+	 * @throws NoCredit_Exception
+	 * @throws AlreadyHasBina_Exception
+	 * @throws UserNotExists_Exception
+	 * @throws NoBinaAvail_Exception
+	 * @throws InvalidStation_Exception
+	 * @throws NoCredit_Exception */
     public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
     	try{
     		checkValidStationId(stationId);
@@ -111,6 +144,14 @@ public class BinasPortImpl implements BinasPortType {
     }
 
     @Override
+	/** returns a bicycle from the given user at a given station
+	 * by asking said station to accept a bicycle if conditions are met
+	 * @param station to return Bina
+	 * @param email of the user returning a Bina
+	 * @throws UserNotExistsException
+	 * @throws NoBinaRentedException
+	 * @throws FullStationException
+	 * @throws InvalidStation_Exception */
     public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
     	try {
     		checkValidStationId(stationId);
