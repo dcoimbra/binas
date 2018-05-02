@@ -114,7 +114,7 @@ public class StationPortImpl implements StationPortType {
 	@Override
 	public synchronized void setBalance(String email, int balance, String tag) {
 
-		if(balance < 0){
+		if( tag == null || balance < 0 || tag.equals("")){
 			return;
 		}
 

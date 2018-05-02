@@ -1,6 +1,7 @@
 package org.binas.station.ws.it;
 
 import org.binas.station.ws.ValTagPair;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,4 +46,27 @@ public class SetBalanceIT extends BaseIT {
         ValTagPair val = client.getBalance(EMAIL_DAVID);
         Assert.assertEquals(10, val.getBalance());
     }
+
+    @Test
+    public void emptyTag(){
+
+        client.setBalance("luciaa@a", 4, "");
+        ValTagPair val = client.getBalance("luciaa@a");
+        Assert.assertNull(val);
+    }
+
+    @Test
+    public void nullTag(){
+
+        client.setBalance("luciaa@a", 4, null);
+        ValTagPair val = client.getBalance("luciaa@a");
+        Assert.assertNull(val);
+    }
+
+    @AfterClass
+    public static void cleanup() {
+        client.testClear();
+    }
+
+
 }
