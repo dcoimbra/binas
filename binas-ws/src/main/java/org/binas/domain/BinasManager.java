@@ -100,7 +100,7 @@ public class BinasManager {
 	}
 	
 	/** returns a binas' user given his registered e-mail address
-	 * @throws InvalidEmailException */
+	 * @throws UserNotExistsException */
 	private synchronized BinasUser getUser(String email, Collection<StationClient> stationClients) throws UserNotExistsException {
 		if(email == null || email.equals(""))
 			throw new UserNotExistsException("No user referred");
@@ -164,7 +164,7 @@ public class BinasManager {
 					try {
 						synchronized (vtList) {
 							if(vtList.size() == quorum) { System.out.println("----/ignoring answers/----"); return;}  //ignores responses when quorum is fulfilled
-							System.out.println("trying to receive <val,tag> from " + Thread.currentThread().getId());
+							System.out.println("trying to receive <val,tag> on thread " + Thread.currentThread().getId());
 							vtList.add(res.get().getValTagPair());
 							semaphore.countDown();
 						}
@@ -184,9 +184,7 @@ public class BinasManager {
 		
 		//Wait Q/2+1 responses
 		try {
-			System.out.println("get: awaiting for quorum...");
 			semaphore.await();
-			System.out.println("get: ...quorum reached! Moving on");
 		} catch (InterruptedException e) {e.printStackTrace();}
 		for(ValTagPair vtp : vtList) {
 			maxValTagPair = compareTags(maxValTagPair, vtp); // if the value stored in that station is greater than the maxVal, then that <val,tag> is the new <maxVal, tag>.
@@ -200,8 +198,6 @@ public class BinasManager {
 	/** writes <val, new maxTag> in the X station replicas  */
 	private synchronized void setBalance(String email, int balance, Collection<StationClient> stationClients, String maxTag) {
 
-		System.out.println("\tstarting set Balance operation:");
-		
 		String newtag = updateTag(maxTag);
 		
 		int quorum = (stationClients.size()/2)+1;
@@ -231,21 +227,9 @@ public class BinasManager {
 		
 		//Wait Q/2+1 acknowledges
 		try {
-			System.out.println("set: awaiting for quorum...");
 			semaphore.await();
-			System.out.println("set: ...quorum reached! Moving on");
 		} catch (InterruptedException e) {e.printStackTrace();}
-		
-		System.out.println("\tset Balance operation completed!");
 	}
-	
-	
-	/*
-	 * /** writes a new <val, maxTag> in the X replicas for already existing users 
-	private void setBalance(String email, int balance, Collection<StationClient> stationClients) {
-		ValTagPair maxValTagPair = getBalance(email, stationClients);
-		setBalance(email, balance, stationClients, maxValTagPair.getTag());
-	}*/
 	
 	
 	/** updates a tag value by incrementing the seq part of that tag */
@@ -275,11 +259,9 @@ public class BinasManager {
 		String cid2 = tag2parts[1];
 		
 		if(seq1 == seq2) {
-			System.out.println("("+seq1+" == "+seq2+"), returning biggest cid");
 			return (cid1.compareTo(cid2) > 0 ? valTag1 : valTag2); //if seqs are equal, compare cid part of tags
 		}
 		ValTagPair answer = seq1 > seq2 ? valTag1 : valTag2;
-		System.out.println(seq1+">"+seq2+"?"+answer.getBalance()+" "+answer.getTag());
 		return (answer);  // returns the valTag pair corresponding to maxTag
 	}
 	

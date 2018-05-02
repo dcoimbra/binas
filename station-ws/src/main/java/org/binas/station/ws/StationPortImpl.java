@@ -106,9 +106,7 @@ public class StationPortImpl implements StationPortType {
 	 /** Get a user's balance. */ 
 	@Override
 	public synchronized ValTagPair getBalance(String email) {
-
-		Station station = Station.getInstance();
-		return station.getValTagPair(email);
+		return Station.getInstance().getValTagPair(email);
 
 	}
 
@@ -121,16 +119,23 @@ public class StationPortImpl implements StationPortType {
 		}
 
 		Station station = Station.getInstance();
-		System.out.println("setting balance of "+balance+" for user "+email+" with tag "+tag);
-			ValTagPair receivedValTagPair = buildValTagPair(balance, tag);
-			ValTagPair valTag = station.getValTagPair(email);
-			if(valTag == null) {												//verifica se o par <valor, tag> ja' existe para aquele email
-				station.addValTagPair(email, buildValTagPair(balance, tag));	//se nao existir, cria um novo
-			} else {
-				ValTagPair newValTag = compareTags(valTag, receivedValTagPair);
-				valTag.setBalance(newValTag.getBalance());
-				valTag.setTag(newValTag.getTag());
-			}
+		System.out.println("set Balance request: user "+email+" <"+balance+","+tag+">");
+			
+		ValTagPair receivedValTagPair = buildValTagPair(balance, tag);
+		ValTagPair currentValTag = station.getValTagPair(email);
+			
+		if(currentValTag == null) {										//verifica se o par <valor, tag> ja' existe para aquele email
+			station.addValTagPair(email, buildValTagPair(balance, tag));//se nao existir, cria um novo
+			
+		} else {
+			System.out.println(" - previously stored: <"+currentValTag.getBalance()+","+currentValTag.getTag()+">");
+			
+			ValTagPair newValTag = compareTags(currentValTag, receivedValTagPair);
+			currentValTag.setBalance(newValTag.getBalance());
+			currentValTag.setTag(newValTag.getTag());
+			
+			System.out.println(" - new value: <"+currentValTag.getBalance()+","+currentValTag.getTag()+">");
+		}
 	}
 		
 	// View helpers ----------------------------------------------------------
@@ -156,39 +161,39 @@ public class StationPortImpl implements StationPortType {
 		 return view;
 	 }
 	 
-		private ValTagPair buildValTagPair(int balance, String tag) {
+	 /** Helper to convert a domain <Value,Tag> pair to a view. */ 
+	private ValTagPair buildValTagPair(int balance, String tag) {
 			ValTagPair view = new ValTagPair();
 			view.setBalance(balance);
 			view.setTag(tag);
 		return view;
 	}
 
-		/**returns the <val,tag> corresponding to the maxTag between two tags */
-		private static ValTagPair compareTags(ValTagPair valTag1, ValTagPair valTag2) {
-			if(valTag1 == null)
-				return valTag2;
-			if(valTag2 == null)
-				return valTag1;						//if any of the <val,tag> is null, it returns the other one
-			
-			String tag1 = valTag1.getTag();			
-			String tag2 = valTag2.getTag();			// keep tags only
-			
-			String[] tag1parts = tag1.split(":");  // separate seq from cid part in tags
-			int seq1 = Integer.parseInt(tag1parts[0]);
-			String cid1 = tag1parts[1];
-			
-			String[] tag2parts = tag2.split(":");
-			int seq2 = Integer.parseInt(tag2parts[0]);
-			String cid2 = tag2parts[1];
-			
-			if(seq1 == seq2) {
-				System.out.println("sequences are equal, returning biggest cid");
-				return (cid1.compareTo(cid2) > 0 ? valTag1 : valTag2); //if seqs are equal, compare cid part of tags
-			}
-			ValTagPair answer = seq1 > seq2 ? valTag1 : valTag2;
-			System.out.println(seq1+">"+seq2+"?"+answer.getBalance()+" "+answer.getTag());
-			return (answer);  // returns the valTag pair corresponding to maxTag
+	/**returns the <val,tag> corresponding to the maxTag between two tags */
+	private static ValTagPair compareTags(ValTagPair valTag1, ValTagPair valTag2) {
+		if(valTag1 == null)
+			return valTag2;
+		if(valTag2 == null)
+			return valTag1;						//if any of the <val,tag> is null, it returns the other one
+		
+		String tag1 = valTag1.getTag();			
+		String tag2 = valTag2.getTag();			// keep tags only
+		
+		String[] tag1parts = tag1.split(":");  // separate seq from cid part in tags
+		int seq1 = Integer.parseInt(tag1parts[0]);
+		String cid1 = tag1parts[1];
+		
+		String[] tag2parts = tag2.split(":");
+		int seq2 = Integer.parseInt(tag2parts[0]);
+		String cid2 = tag2parts[1];
+		
+		if(seq1 == seq2) {
+			return (cid1.compareTo(cid2) > 0 ? valTag1 : valTag2); //if seqs are equal, compare cid part of tags
 		}
+		ValTagPair answer = seq1 > seq2 ? valTag1 : valTag2;
+		return (answer);  // returns the valTag pair corresponding to maxTag
+	}
+	
 	// Exception helpers -----------------------------------------------------
 
 	 /** Helper to throw a new NoBinaAvail exception. */
