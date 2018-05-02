@@ -55,7 +55,6 @@ public class BinasClientApp {
 							 + "[C] - Get Credit\n"
 							 + "[R] - Return Bina\n"
 							 + "[X] - Clear All Data\n"
-							 + "[P] - Ping test all stations\n"
 							 + "[Q] - Quit Demo");
 			
 			BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
@@ -86,10 +85,6 @@ public class BinasClientApp {
 						client.testInitStation(station1, 20, 20, 20, 2);
 						break;
 						
-					case "P":
-						client.testPing("demo");
-						break;
-					
 					case "Q":
 						run = false;
 						break;
