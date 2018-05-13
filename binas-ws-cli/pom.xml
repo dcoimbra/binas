@@ -53,17 +53,10 @@
         	<groupId>pt.ulisboa.tecnico.sdis</groupId>
         	<artifactId>kerby-lib</artifactId>
         	<version>1.0</version>
-        	<exclusions>
-        		<!-- Exclude kerby-ws-cli to avoid having duplicate WSDL-generated classes in the classpath. -->
-	            <exclusion>
-	                <groupId>pt.ulisboa.tecnico.sdis</groupId>
-	                <artifactId>kerby-ws-cli</artifactId>
-	            </exclusion>
-            </exclusions>
         </dependency>
 
 		<dependency>
-			<groupId>example</groupId>
+			<groupId>ws-handlers.T07</groupId>
 			<artifactId>ws-handlers</artifactId>
 			<version>1.1-SNAPSHOT</version>
 		</dependency>
