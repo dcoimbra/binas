@@ -53,6 +53,20 @@
 			<artifactId>uddi-naming</artifactId>
 			<version>1.2</version>
 		</dependency>
+
+		<!-- kerby-lib -->
+		<dependency>
+        	<groupId>pt.ulisboa.tecnico.sdis</groupId>
+        	<artifactId>kerby-lib</artifactId>
+        	<version>1.0</version>
+        	<exclusions>
+        		<!-- Exclude kerby-ws-cli to avoid having duplicate WSDL-generated classes in the classpath. -->
+	            <exclusion>
+	                <groupId>pt.ulisboa.tecnico.sdis</groupId>
+	                <artifactId>kerby-ws-cli</artifactId>
+	            </exclusion>
+            </exclusions>
+        </dependency>
 	</dependencies>
 
 	<build>
