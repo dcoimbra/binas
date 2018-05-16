@@ -45,7 +45,7 @@ public class BinasClientApp {
 //		System.out.print(result);
 		 
 		boolean run = true;
-		String email = "sdis@tecnico.pt";
+		String email = "alice@T07.binas.org";
 		String station1 = "T07_Station1";
 		client.testInitStation(station1, 20, 20, 20, 2);
 		

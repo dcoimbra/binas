@@ -87,10 +87,10 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
                 
                 smc.put("SESSION_KEY", sessionKey.getKeyXY());
 
-
                 //Create authenticator and encrypt with Ksc
                 Auth auth = new Auth(CLIENT_EMAIL, new Date());
                 CipheredView cipheredAuth = auth.cipher(sessionKey.getKeyXY());
+                smc.put("AUTH", auth);
 
                 // get SOAP envelope
                 SOAPMessage msg = smc.getMessage();
@@ -143,7 +143,7 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
         	System.out.println("SOAP exception");
             throw new RuntimeException(e.getMessage());
         } catch(Exception e) {
-        	System.out.println("Exception");
+        	System.out.println("Error:");
         	throw new RuntimeException(e.getMessage());
         }
 
