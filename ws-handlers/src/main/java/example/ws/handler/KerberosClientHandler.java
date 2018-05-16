@@ -162,9 +162,7 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
                 RequestTime requestTime = new RequestTime(cipheredRequestTime, (Key) smc.get("SESSION_KEY"));
 
                 Auth auth = (Auth) smc.get("AUTH");
-                System.out.println("Original request time: " + requestTime);
-                System.out.println("Auth request time: " + auth.getTimeRequest());
-
+                
                 RequestTime authRequestTime = new RequestTime(auth.getTimeRequest());
 
                 if (!requestTime.equals(authRequestTime)) {
