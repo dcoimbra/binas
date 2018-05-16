@@ -3,11 +3,13 @@ package example.ws.handler;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
 import java.security.Key;
 import java.security.SecureRandom;
 
+import org.w3c.dom.NodeList;
 import pt.ulisboa.tecnico.sdis.kerby.*;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
 
@@ -84,13 +86,14 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
                 if (sessionKey.getNounce() != nounce) {
                     throw new RuntimeException("Nounces don't match");
                 }
-                
+
                 smc.put("SESSION_KEY", sessionKey.getKeyXY());
 
                 //Create authenticator and encrypt with Ksc
                 Auth auth = new Auth(CLIENT_EMAIL, new Date());
                 CipheredView cipheredAuth = auth.cipher(sessionKey.getKeyXY());
                 smc.put("AUTH", auth);
+
 
                 // get SOAP envelope
                 SOAPMessage msg = smc.getMessage();
@@ -119,6 +122,54 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
                 Node authNode = clerk.cipherToXMLNode(cipheredAuth, authName.getLocalName());
                 Node importedAuthNode = sp.importNode(authNode.getFirstChild(), true);
                 authElement.appendChild(importedAuthNode);
+            }
+
+            else {
+
+                System.out.println("Reading header from INbound SOAP message...");
+
+                // get SOAP envelope header
+                SOAPMessage msg = smc.getMessage();
+                SOAPPart sp = msg.getSOAPPart();
+                SOAPEnvelope se = sp.getEnvelope();
+                SOAPHeader sh = se.getHeader();
+
+                // check header
+                if (sh == null) {
+                    throw new RuntimeException("Header not found");
+                }
+
+                // get requestTime header element
+                Name requestTimeName = se.createName("requestTime", "binas", "http://ws.binas.org/");
+
+                Iterator<?> requestTimeIt = sh.getChildElements(requestTimeName);
+
+                // check requestTime header element
+                if (!requestTimeIt.hasNext()) {
+                    throw new RuntimeException("Request time header element not found");
+                }
+
+                SOAPElement requestTimeElement = (SOAPElement) requestTimeIt.next();
+
+                //get ciphered request time
+                NodeList requestTimeList = requestTimeElement.getElementsByTagName("requestTime");
+                Node cipheredRequestTimeNode = requestTimeList.item(0);
+
+                CipherClerk clerk = new CipherClerk();
+
+                CipheredView cipheredRequestTime = clerk.cipherFromXMLNode(cipheredRequestTimeNode);
+
+                RequestTime requestTime = new RequestTime(cipheredRequestTime, (Key) smc.get("SESSION_KEY"));
+
+                Auth auth = (Auth) smc.get("AUTH");
+                System.out.println("Original request time: " + requestTime);
+                System.out.println("Auth request time: " + auth.getTimeRequest());
+
+                RequestTime authRequestTime = new RequestTime(auth.getTimeRequest());
+
+                if (!requestTime.equals(authRequestTime)) {
+                    throw new RuntimeException("Timestamps don't match.");
+                }
             }
 
         } catch (NoSuchAlgorithmException e) {
