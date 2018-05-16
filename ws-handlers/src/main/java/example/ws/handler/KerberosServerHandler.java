@@ -132,6 +132,9 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 //Decrypt authenticator with Kcs
                 Auth auth = new Auth(cipheredAuth, ticket.getKeyXY());
 
+                //save auth and ticket
+
+
                 //validate authenticator
                 auth.validate();
 
@@ -144,14 +147,11 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
                 CipheredView cipheredtReq = treq.cipher(ticket.getKeyXY());
                 
-                // put header in a property context
+                // put information in a property context
                 smc.put("TIMESTAMP_RESPONSE", cipheredtReq);
                 smc.put("SESSION_KEY", ticket.getKeyXY());
-                // set property scope to application client/server class can
-                // access it
-                smc.setScope("TIMESTAMP_RESPONSE", Scope.HANDLER);
-                smc.setScope("SESSION_KEY", Scope.HANDLER);
-
+                smc.put("TICKET", ticket);
+                smc.put("AUTH", auth);
             }
 
         } catch (NoSuchAlgorithmException e) {
@@ -170,13 +170,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
         	System.out.println("SOAP exception");
             throw new RuntimeException(e.getMessage());
         } catch (Exception e) {
-        	System.out.println("cebola: "+e.getMessage());
-        	try {
-				throw e;
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+        	System.out.println("Error:");
+            throw new RuntimeException(e.getMessage());
         }
 
         return true;
