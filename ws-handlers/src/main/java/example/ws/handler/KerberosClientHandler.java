@@ -84,6 +84,9 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
                 if (sessionKey.getNounce() != nounce) {
                     throw new RuntimeException("Nounces don't match");
                 }
+                
+                smc.put("SESSION_KEY", sessionKey.getKeyXY());
+
 
                 //Create authenticator and encrypt with Ksc
                 Auth auth = new Auth(CLIENT_EMAIL, new Date());
@@ -119,19 +122,29 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
             }
 
         } catch (NoSuchAlgorithmException e) {
+        	System.out.println("no such algorithm");
             throw new RuntimeException(e.getMessage());
         } catch (InvalidKeySpecException e) {
+        	System.out.println("invalid key");
             throw new RuntimeException(e.getMessage());
         } catch (KerbyClientException e) {
+        	System.out.println("kerby client exception");
             throw new RuntimeException(e.getMessage());
         } catch (BadTicketRequest_Exception e) {
+        	System.out.println("bad ticket request");
             throw new RuntimeException(e.getMessage());
         } catch (KerbyException e) {
+        	System.out.println("kerby exception");
             throw new RuntimeException(e.getMessage());
         } catch (JAXBException e) {
+        	System.out.println("JAXB exception");
             throw new RuntimeException(e.getMessage());
         } catch (SOAPException e) {
+        	System.out.println("SOAP exception");
             throw new RuntimeException(e.getMessage());
+        } catch(Exception e) {
+        	System.out.println("Exception");
+        	throw new RuntimeException(e.getMessage());
         }
 
         return true;
