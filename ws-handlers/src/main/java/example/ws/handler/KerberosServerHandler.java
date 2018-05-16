@@ -100,11 +100,15 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 
                 //validate ticket
                 ticket.validate();
-
+                
+                Thread.sleep(2000); //para forcar a data actual a ser anterior ao time1 do ticket
                 Date now = new Date();
 
-                if (!(now.after(ticket.getTime1()) && now.before(ticket.getTime2())) || (!ticket.getY().equals(SERVER_NAME))) {
-                    throw new RuntimeException("Invalid ticket");
+                if (!(now.after(ticket.getTime1()) && now.before(ticket.getTime2())) ) {
+                    throw new RuntimeException("Invalid ticket: now="+now+" t1="+ticket.getTime1()+"; t2="+ticket.getTime2());
+                }
+                if ((!ticket.getY().equals(SERVER_NAME))) {
+                	 throw new RuntimeException("Invalid ticket: ty="+ticket.getY()+"; sn="+SERVER_NAME);
                 }
 
                 // get authenticator header element
@@ -142,21 +146,37 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 
                 // put header in a property context
                 smc.put("TIMESTAMP_RESPONSE", cipheredtReq);
+                smc.put("SESSION_KEY", ticket.getKeyXY());
                 // set property scope to application client/server class can
                 // access it
                 smc.setScope("TIMESTAMP_RESPONSE", Scope.HANDLER);
+                smc.setScope("SESSION_KEY", Scope.HANDLER);
+
             }
 
         } catch (NoSuchAlgorithmException e) {
+        	System.out.println("no such algorithm");
             throw new RuntimeException(e.getMessage());
         } catch (InvalidKeySpecException e) {
+        	System.out.println("invalid key");
             throw new RuntimeException(e.getMessage());
         } catch (KerbyException e) {
+        	System.out.println("kerby exception");
             throw new RuntimeException(e.getMessage());
         } catch (JAXBException e) {
+        	System.out.println("JAXB exception");
             throw new RuntimeException(e.getMessage());
         } catch (SOAPException e) {
+        	System.out.println("SOAP exception");
             throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+        	System.out.println("cebola: "+e.getMessage());
+        	try {
+				throw e;
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
         }
 
         return true;

@@ -1,6 +1,8 @@
 package example.ws.handler;
 
+
 import java.io.StringWriter;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
@@ -14,7 +16,10 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.handler.MessageContext;
@@ -40,7 +45,7 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 		try {
 			CipherClerk clerk = new CipherClerk();
 			
-			String hMacMsg = getSessionKey();
+			String hMacKey = getSessionKey(smc).toString();
 			
 			
 			// get SOAP envelope
@@ -50,7 +55,7 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 	        SOAPBody sb = se.getBody();
 	        
 	        //concatenate msg with key
-	        String hMacMsgDig = digestMessage(convertToString(sb)+hMacMsg);
+	        String hMacMsgDig = digestMessage(convertToString(sb)+hMacKey);
 	        
 	        // add header
 	        SOAPHeader sh = se.getHeader();
@@ -69,20 +74,17 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("\t\t\tsoap body: "+convertToString(sb));
             
 		} catch (SOAPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		} 
 		
 		return true;
 	}
 	
-	private String convertToString(SOAPBody element) throws Exception{
+	private String convertToString(SOAPBody element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         
         DOMSource source = new DOMSource(element);
         StringWriter stringResult = new StringWriter();
@@ -91,8 +93,10 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
         return message;
     }
 	
-	private String getSessionKey() {
-		return "123";
+	private Key getSessionKey(SOAPMessageContext smc) {
+		
+		Key sessionKey = (Key) smc.get("SESSION_KEY");
+		return sessionKey;
 	}
 	
 	private String digestMessage(String s) throws NoSuchAlgorithmException {

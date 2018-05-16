@@ -5,13 +5,13 @@
             <handler-class>example.ws.handler.PrettyLogHandler</handler-class>
         </handler>
         <handler>
+            <handler-class>example.ws.handler.MacServerHandler</handler-class>
+        </handler>
+        <handler>
             <handler-class>example.ws.handler.KerberosServerHandler</handler-class>
         </handler>
         <handler>
             <handler-class>example.ws.handler.KerberosRequestTimeHandler</handler-class>
-        </handler>
-        <handler>
-            <handler-class>example.ws.handler.MacServerHandler</handler-class>
         </handler>
         <handler>
             <handler-class>example.ws.handler.PrettyLogHandler</handler-class>

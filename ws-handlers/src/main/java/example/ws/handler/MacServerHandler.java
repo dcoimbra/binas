@@ -2,6 +2,7 @@ package example.ws.handler;
 
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
+import java.security.Key;
 import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +17,10 @@ import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.soap.SOAPHeader;
@@ -33,7 +37,7 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 		if(isOutbound) {	// if message is outbound there is no need to handle/verify message integrity
 			return true;
 		}
-		
+		// FOR INBOUND MESSAGES:
 		try {
 			// get SOAP envelope
 			SOAPMessage msg = smc.getMessage();
@@ -42,8 +46,7 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	        SOAPBody sb = se.getBody();
 	        SOAPHeader sh = se.getHeader();
 			
-	        // expected hMAC msg value
-	        String hMacExp = digestMessage(convertToString(sb)+getSessionKey());			
+	        // expected hMAC msg value		
 			
 	        //get header element value
 	        Name name = se.createName("hMac", "binas", "http://ws.binas.org/");
@@ -52,6 +55,9 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	       SOAPElement element = (SOAPElement) it.next();
 	       String hMacRec = element.getValue();
 	       
+	       Key hMacKey = getSessionKey(smc);
+	       System.out.println("\t\t\tSESSION KEY:"+hMacKey);
+	       String hMacExp = digestMessage(convertToString(sb)+hMacKey.toString());	
 	        //compare expected and received hMAC values
 			if(!hMacExp.equals(hMacRec)) {
 				System.out.println("\n\nvalues are different!\n expected:"+hMacExp+"\nbut got:"+hMacRec+"\n\n");
@@ -59,21 +65,18 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 			}
 			System.out.println("\n\nvalues match!\n\n");
 			
-		} catch (NoSuchAlgorithmException e) {  //TODO treat exceptions
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e.getMessage());
 		} catch (SOAPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		}
 		
 		return true;
 	}
 
-	private String convertToString(SOAPBody element) throws Exception{
+	private String convertToString(SOAPBody element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         
         DOMSource source = new DOMSource(element);
         StringWriter stringResult = new StringWriter();
@@ -82,8 +85,10 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
         return message;
     }
 	
-	private String getSessionKey() {	//TODO get session key
-		return "123";
+	private Key getSessionKey(SOAPMessageContext smc) {
+		
+		Key sessionKey = (Key) smc.get("SESSION_KEY");
+		return sessionKey;
 	}
 	
 	
