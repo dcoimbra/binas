@@ -132,9 +132,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                 //Decrypt authenticator with Kcs
                 Auth auth = new Auth(cipheredAuth, ticket.getKeyXY());
 
-                //save auth and ticket
-
-
                 //validate authenticator
                 auth.validate();
 

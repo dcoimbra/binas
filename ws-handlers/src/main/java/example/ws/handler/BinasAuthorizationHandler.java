@@ -13,6 +13,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.security.Key;
+import java.util.Iterator;
 import java.util.Set;
 
 public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext> {
@@ -40,8 +41,6 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
             if (!outboundElement.booleanValue()) {
 
                 try {
-                    CipheredView cipheredView = (CipheredView) smc.get("TIMESTAMP_RESPONSE");
-                    Key key = (Key) smc.get("SESSION_KEY");
 
                     Ticket ticket = (Ticket) smc.get("TICKET");
                     Auth auth = (Auth) smc.get("AUTH");
@@ -49,31 +48,43 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                     String ticketEmail = ticket.getX();
                     String authEmail = auth.getX();
 
-                    // get SOAP envelope header
+                    // get SOAP envelope body
                     SOAPMessage msg = smc.getMessage();
                     SOAPPart sp = msg.getSOAPPart();
                     SOAPEnvelope soapEnvelope = sp.getEnvelope();
                     SOAPBody soapBody = soapEnvelope.getBody();
-                    Document doc = soapBody.extractContentAsDocument();
 
-                    NodeList emailList = doc.getElementsByTagName("email");
-                    Node emailNode = emailList.item(0);
 
-                    if(emailNode.getNodeValue() == null){
-                        throw new RuntimeException("Email not found");
-                    }
+                    //check if operation needs access control: testInitStations and testPing
+                    Name testInitStationsName = soapEnvelope.createName("test_init_station", "ns2", "http://ws.binas.org/");
+                    Name testPingName = soapEnvelope.createName("test_ping", "ns2", "http://ws.binas.org/");
 
-                    String email = emailNode.getNodeValue();
+                    Iterator<?> testInitStationsIt = soapBody.getChildElements(testInitStationsName);
+                    Iterator<?> testPingIt = soapBody.getChildElements(testPingName);
 
-                    if(!(email.equals(ticketEmail) && email.equals(authEmail))){
-                        throw new RuntimeException("Email not authenticated");
+                    if (!((testInitStationsIt.hasNext()) || (testPingIt.hasNext()))) {
+
+                        SOAPBodyElement request = (SOAPBodyElement) soapBody.getFirstChild();
+
+                        NodeList emailList = request.getElementsByTagName("email");
+                        Node emailNode = emailList.item(0);
+
+                        if (emailNode == null) {
+                            throw new RuntimeException("Email element not found");
+                        }
+
+                        String email = emailNode.getFirstChild().getNodeValue();
+
+                        if (!(email.equals(ticketEmail) && email.equals(authEmail))) {
+                            throw new RuntimeException("Invalid email");
+                        }
                     }
 
                 } catch (SOAPException e) {
                     System.out.println("SOAP exception");
                     throw new RuntimeException(e.getMessage());
                 }catch (NullPointerException e) {
-                    System.out.println("exception");
+                    System.out.println("Error: ");
                     e.printStackTrace();
                 }
 
