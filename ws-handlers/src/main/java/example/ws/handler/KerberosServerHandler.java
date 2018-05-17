@@ -140,7 +140,25 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
                     throw new RuntimeException("Invalid authenticator.");
                 }
 
-                RequestTime treq = new RequestTime(auth.getTimeRequest());
+                //get request timestamp
+                Date requestTimeStamp = auth.getTimeRequest();
+
+                //check timestamp
+                now.setTime(now.getTime() - 5000); //delay backward 5 seconds
+
+                if (!requestTimeStamp.after(now)) {
+
+                    throw new RuntimeException("Timestamp is too old");
+                }
+
+                now.setTime(now.getTime() + 10000); //delay forward 5 seconds (10 seconds relative to previous change)
+
+                if (!requestTimeStamp.before(now)) {
+
+                    throw new RuntimeException("Timestamp is newer than current time");
+                }
+
+                RequestTime treq = new RequestTime(requestTimeStamp);
 
                 CipheredView cipheredtReq = treq.cipher(ticket.getKeyXY());
                 
