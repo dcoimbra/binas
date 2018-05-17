@@ -419,7 +419,7 @@ public class BinasManager {
 			throw new InvalidEmailException("Email is invalid");
 		}
 
-		if( !email.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?")){
+		if( !email.matches("[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*")){
 			throw new InvalidEmailException("Email is invalid");
 		}
 	}

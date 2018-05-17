@@ -56,16 +56,14 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	       
 	       //expected hMAC msg value
 	       Key hMacKey = getSessionKey(smc);
-	       System.out.println("\t\t\tSESSION KEY:"+hMacKey);
+
 	       String hMacExp = digestMessage(convertToString(sb)+hMacKey.toString());
-	       
+
 	        //compare expected and received hMAC values
 			if(!hMacExp.equals(hMacRec)) {
-				System.out.println("\n\nvalues are different!\n expected:"+hMacExp+"\nbut got:"+hMacRec+"\n\n");
-				return false;
+				throw new RuntimeException("\n\nvalues are different!\n expected:"+hMacExp+"\nbut got:"+hMacRec+"\n\n");
 			}
-			System.out.println("\n\nvalues match!\n\n");
-			
+
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e.getMessage());
 		} catch (SOAPException e) {
