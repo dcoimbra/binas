@@ -9,6 +9,9 @@
         <handler>
             <handler-class>example.ws.handler.MacClientHandler</handler-class>
         </handler>
+        <!--<handler>
+            <handler-class>example.ws.handler.MaliciousHandlerMACTest</handler-class>
+        </handler>-->
         <handler>
             <handler-class>example.ws.handler.PrettyLogHandler</handler-class>
         </handler>

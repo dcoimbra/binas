@@ -194,7 +194,7 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
         	System.out.println("JAXB exception");
             throw new RuntimeException(e.getMessage());
         } catch (SOAPException e) {
-        	System.out.println("SOAP exception");
+            System.out.println("SOAP exception");
             throw new RuntimeException(e.getMessage());
         } catch(Exception e) {
         	System.out.println("Error:");

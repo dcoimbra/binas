@@ -80,10 +80,11 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 } catch (SOAPException e) {
                     System.out.println("SOAP exception");
                     throw new RuntimeException(e.getMessage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e.getMessage());
                 }
 
             }
-
         return true;
     }
 
