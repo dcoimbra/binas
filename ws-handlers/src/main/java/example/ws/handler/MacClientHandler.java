@@ -42,6 +42,7 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 			return true;
 		}
 		
+		//for outbound messages:
 		try {
 			CipherClerk clerk = new CipherClerk();
 			
@@ -52,12 +53,12 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 			SOAPMessage msg = smc.getMessage();
 	        SOAPPart sp = msg.getSOAPPart();
 	        SOAPEnvelope se = sp.getEnvelope();
-	        SOAPBody sb = se.getBody();
+	        SOAPBody soapBody = se.getBody();
 	        
 	        //concatenate msg with key
-	        String hMacMsgDig = digestMessage(convertToString(sb)+hMacKey);
+	        String hMacMsgDig = digestMessage(convertToString(soapBody)+hMacKey);
 	        
-	        // add header
+	        // add header if it doesn't exist
 	        SOAPHeader sh = se.getHeader();
 	        if (sh == null)
 	            sh = se.addHeader();
@@ -67,11 +68,9 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 	        SOAPHeaderElement hMacElement = sh.addHeaderElement(hMac);
 	        
 	        // add ticket header element value
-//            Node hMacNode = clerk.cipherToXMLNode(cipheredhMac, hMacName.getLocalName());
-//            Node importedticketNode = sp.importNode(hMacNode.getFirstChild(), true);
-            hMacElement.setValue(hMacMsgDig);//smc.put("chave", hMacMsg);
+            hMacElement.setValue(hMacMsgDig);
 	        
-            System.out.println("\t\t\tsoap body: "+convertToString(sb));
+            System.out.println("\t\t\tsoap body: "+convertToString(soapBody));
             
 		} catch (SOAPException e) {
 			throw new RuntimeException(e.getMessage());
@@ -85,7 +84,7 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 	
 	private String convertToString(SOAPBody element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        
+		//TODO simplificar metodo para String message = element.getTextContent();
         DOMSource source = new DOMSource(element);
         StringWriter stringResult = new StringWriter();
         TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(stringResult));

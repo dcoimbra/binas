@@ -44,19 +44,21 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	        SOAPPart sp = msg.getSOAPPart();
 	        SOAPEnvelope se = sp.getEnvelope();
 	        SOAPBody sb = se.getBody();
-	        SOAPHeader sh = se.getHeader();
-			
-	        // expected hMAC msg value		
+	        SOAPHeader sh = se.getHeader();		
 			
 	        //get header element value
 	        Name name = se.createName("hMac", "binas", "http://ws.binas.org/");
 	        Iterator<?> it = sh.getChildElements(name);
+	        
 	       // assert header element value
 	       SOAPElement element = (SOAPElement) it.next();
 	       String hMacRec = element.getValue();
 	       
+	       //expected hMAC msg value
 	       Key hMacKey = getSessionKey(smc);
+
 	       String hMacExp = digestMessage(convertToString(sb)+hMacKey.toString());
+
 	        //compare expected and received hMAC values
 			if(!hMacExp.equals(hMacRec)) {
 				throw new RuntimeException("\n\nvalues are different!\n expected:"+hMacExp+"\nbut got:"+hMacRec+"\n\n");
@@ -74,7 +76,7 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 
 	private String convertToString(SOAPBody element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        
+		//TODO simplificar metodo para String message = element.getTextContent();
         DOMSource source = new DOMSource(element);
         StringWriter stringResult = new StringWriter();
         TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(stringResult));
