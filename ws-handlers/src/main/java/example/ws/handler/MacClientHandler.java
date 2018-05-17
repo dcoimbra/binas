@@ -69,9 +69,7 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 	        
 	        // add ticket header element value
             hMacElement.setValue(hMacMsgDig);
-	        
-            System.out.println("\t\t\tsoap body: "+convertToString(soapBody));
-            
+
 		} catch (SOAPException e) {
 			throw new RuntimeException(e.getMessage());
 		} catch (NoSuchAlgorithmException e) {

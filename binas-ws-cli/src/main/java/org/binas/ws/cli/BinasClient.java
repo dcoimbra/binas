@@ -35,6 +35,7 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
  */
 public class BinasClient implements BinasPortType {
 
+
     /** WS service */
 	BinasService service = null;
 
@@ -116,6 +117,14 @@ public class BinasClient implements BinasPortType {
 		 Map<String, Object> requestContext = bindingProvider.getRequestContext();
 		 requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
 		 }
+    }
+
+    public void setUser(String email, String password) {
+
+        BindingProvider bindingProvider = (BindingProvider) port;
+        Map<String, Object> requestContext = bindingProvider.getRequestContext();
+        requestContext.put("email", email);
+        requestContext.put("password", password);
     }
 
 	// remote invocation methods ----------------------------------------------

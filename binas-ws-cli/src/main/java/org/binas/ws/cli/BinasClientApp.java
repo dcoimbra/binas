@@ -5,6 +5,32 @@ import java.io.InputStreamReader;
 
 public class BinasClientApp {
 
+	private static void setUser(BinasClient client, String email) {
+
+		String password = null;
+
+		switch (email) {
+
+			case "alice@T07.binas.org":
+				password = "fXp5TsK2";
+				break;
+
+			case "charlie@T07.binas.org":
+				password = "eOgg7VB";
+				break;
+
+			case "eve@T07.binas.org":
+				password = "JaM8ZdDmw";
+				break;
+
+			default:
+				System.out.println("Email not known by Kerby.");
+				return;
+		}
+
+		client.setUser(email, password);
+	}
+
     public static void main(String[] args) throws Exception {
         // Check arguments
         if (args.length == 0) {
@@ -45,7 +71,10 @@ public class BinasClientApp {
 //		System.out.print(result);
 		 
 		boolean run = true;
-		String email = "alice@T07.binas.org";
+		String email = "charlie@T07.binas.org";
+
+		setUser(client, email);
+
 		String station1 = "T07_Station1";
 		client.testInitStation(station1, 20, 20, 20, 2);
 		
