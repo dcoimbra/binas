@@ -29,8 +29,8 @@ import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 
     private static final String WS_URL = "http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby";
-    private static final String PASSWORD = "fXp5TsK2";
-    private static final String CLIENT_EMAIL = "alice@T07.binas.org";
+    private static String PASSWORD;
+    private static String CLIENT_EMAIL;
     private static final String SERVER_EMAIL = "binas@T07.binas.org";
     private static final int DURATION = 30;
 
@@ -59,6 +59,9 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
             Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
             if (outboundElement.booleanValue()) {
+
+                CLIENT_EMAIL = (String) smc.get("email");
+                PASSWORD = (String) smc.get("password");
 
                 CipherClerk clerk = new CipherClerk();
                 SecureRandom randomGenerator = new SecureRandom();
