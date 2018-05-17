@@ -1,10 +1,8 @@
 package example.ws.handler;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import pt.ulisboa.tecnico.sdis.kerby.Auth;
-import pt.ulisboa.tecnico.sdis.kerby.CipheredView;
 import pt.ulisboa.tecnico.sdis.kerby.Ticket;
 
 import javax.xml.namespace.QName;
@@ -12,7 +10,6 @@ import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.security.Key;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -83,9 +80,6 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                 } catch (SOAPException e) {
                     System.out.println("SOAP exception");
                     throw new RuntimeException(e.getMessage());
-                }catch (NullPointerException e) {
-                    System.out.println("Error: ");
-                    e.printStackTrace();
                 }
 
             }
