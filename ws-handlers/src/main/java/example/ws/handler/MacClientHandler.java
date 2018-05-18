@@ -82,7 +82,6 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 	
 	private String convertToString(SOAPBody element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-		//TODO simplificar metodo para String message = element.getTextContent();
         DOMSource source = new DOMSource(element);
         StringWriter stringResult = new StringWriter();
         TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(stringResult));
@@ -103,21 +102,29 @@ public class MacClientHandler implements SOAPHandler<SOAPMessageContext> {
 		return printHexBinary(digest);
 	}
 
+	/**
+	 * The handleFault method is invoked for fault message processing.
+	 */
 	@Override
 	public boolean handleFault(SOAPMessageContext context) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
+	/**
+	 * Called at the conclusion of a message exchange pattern just prior to the
+	 * JAX-WS runtime dispatching a message, fault or exception.
+	 */
 	@Override
 	public void close(MessageContext context) {
-		// TODO Auto-generated method stub
-		
+		// nothing to clean up
 	}
 
+	/**
+	 * Gets the header blocks that can be processed by this Handler instance. If
+	 * null, processes all.
+	 */
 	@Override
 	public Set<QName> getHeaders() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

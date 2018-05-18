@@ -30,6 +30,10 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 
+	/**
+	 * The handleMessage method is invoked for normal processing of inbound and
+	 * outbound messages.
+	 */
 	@Override
 	public boolean handleMessage(SOAPMessageContext smc) {
 		Boolean isOutbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
@@ -77,7 +81,6 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 
 	private String convertToString(SOAPBody element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-		//TODO simplificar metodo para String message = element.getTextContent();
         DOMSource source = new DOMSource(element);
         StringWriter stringResult = new StringWriter();
         TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(stringResult));
@@ -93,27 +96,35 @@ public class MacServerHandler implements SOAPHandler<SOAPMessageContext> {
 	
 	
 	private String digestMessage(String s) throws NoSuchAlgorithmException {
-		MessageDigest msgD = MessageDigest.getInstance("SHA-256");	//TODO user MD5 instead of SHA-256?
+		MessageDigest msgD = MessageDigest.getInstance("SHA-256");
 		msgD.update(s.getBytes());
 		byte[] digest = msgD.digest();
 		return printHexBinary(digest);
 	}
-	
+
+	/**
+	 * The handleFault method is invoked for fault message processing.
+	 */
 	@Override
 	public boolean handleFault(SOAPMessageContext context) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
+	/**
+	 * Called at the conclusion of a message exchange pattern just prior to the
+	 * JAX-WS runtime dispatching a message, fault or exception.
+	 */
 	@Override
 	public void close(MessageContext context) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
+	/**
+	 * Gets the header blocks that can be processed by this Handler instance. If
+	 * null, processes all.
+	 */
 	@Override
 	public Set<QName> getHeaders() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
