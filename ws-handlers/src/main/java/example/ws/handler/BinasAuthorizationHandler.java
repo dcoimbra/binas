@@ -39,9 +39,11 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
 
                 try {
 
+                    //Get ticket and auth
                     Ticket ticket = (Ticket) smc.get("TICKET");
                     Auth auth = (Auth) smc.get("AUTH");
 
+                    //Get ticket and auth's email
                     String ticketEmail = ticket.getX();
                     String authEmail = auth.getX();
 
@@ -56,6 +58,7 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                     Name testInitStationsName = soapEnvelope.createName("test_init_station", "ns2", "http://ws.binas.org/");
                     Name testPingName = soapEnvelope.createName("test_ping", "ns2", "http://ws.binas.org/");
 
+                    //Get email from soapBody
                     Iterator<?> testInitStationsIt = soapBody.getChildElements(testInitStationsName);
                     Iterator<?> testPingIt = soapBody.getChildElements(testPingName);
 
@@ -66,12 +69,14 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
                         NodeList emailList = request.getElementsByTagName("email");
                         Node emailNode = emailList.item(0);
 
+                        //Email existence verification
                         if (emailNode == null) {
                             throw new RuntimeException("Email element not found");
                         }
 
                         String email = emailNode.getFirstChild().getNodeValue();
 
+                        //Check if emails are all equal
                         if (!(email.equals(ticketEmail) && email.equals(authEmail))) {
                             throw new RuntimeException("Invalid email");
                         }
