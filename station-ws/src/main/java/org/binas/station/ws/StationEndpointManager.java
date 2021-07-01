@@ -58,12 +58,6 @@ public class StationEndpointManager {
 		this.wsURL = wsURL;
 	}
 
-	/** constructor with provided web service URL */
-	/*public StationEndpointManager(String uddiURL, String wsName) {
-		this.wsName = wsName;
-		this.uddiURL = uddiURL;
-	}*/
-
 	/* end point management */
 
 	public void start() throws Exception {
