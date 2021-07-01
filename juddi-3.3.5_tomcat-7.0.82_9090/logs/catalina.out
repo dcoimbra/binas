@@ -206,3 +206,27 @@ jul 01, 2021 6:11:21 PM org.apache.coyote.AbstractProtocol start
 INFO: Starting ProtocolHandler ["ajp-bio-8009"]
 jul 01, 2021 6:11:21 PM org.apache.catalina.startup.Catalina start
 INFO: Server startup in 31159 ms
+jul 01, 2021 6:51:10 PM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+jul 01, 2021 6:51:10 PM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["http-bio-9090"]
+jul 01, 2021 6:51:10 PM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8009"]
+jul 01, 2021 6:51:10 PM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+jul 01, 2021 6:51:10 PM org.apache.juddi.webconsole.StartupServlet contextDestroyed
+INFO: Cleaning up juddi-gui
+jul 01, 2021 6:51:10 PM org.apache.juddi.adminconsole.StartupServlet removeKeyFromConfigurationFile
+INFO: Cleaning up juddi-admin
+jul 01, 2021 6:51:10 PM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [/juddiv3replication] appears to have started a thread named [Timer-1] but has failed to stop it. This is very likely to create a memory leak.
+jul 01, 2021 6:51:10 PM org.apache.juddi.adminconsole.StartupServlet removeKeyFromConfigurationFile
+INFO: Cleaning up juddi-admin
+jul 01, 2021 6:51:10 PM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["http-bio-9090"]
+jul 01, 2021 6:51:10 PM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8009"]
+jul 01, 2021 6:51:10 PM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["http-bio-9090"]
+jul 01, 2021 6:51:10 PM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["ajp-bio-8009"]
